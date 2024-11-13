@@ -16,7 +16,7 @@ const ApiResponse = require("./response/ApiResponse");
  * @access public
  */
 const register = AsyncHandler(async (req, res) => {
-  const {name, email, password, role, phone, profileUrl} = req.body;
+  const {name, email, password, role, phone} = req.body;
 
   // is user exists
   const userExists = await User.findOne({ email });
@@ -39,7 +39,6 @@ const register = AsyncHandler(async (req, res) => {
     hashedPassword: hashedPassword,
     role: role, 
     phone: phone,
-    profileUrl: profileUrl
   });
 
   if (!user) {
