@@ -14,8 +14,10 @@ const Routes = require("./routes");
 /*==============================
 include environment variables
 ==============================*/
-const port = process.env.PORT || 8888;
-const hostName = process.env.HOSTNAME
+// const port = process.env.PORT || 8888;
+// const hostName = process.env.HOSTNAME
+const port = process.env.PORT || 8080;  // Render expects port 8080 or dynamic port
+const hostName = process.env.HOSTNAME || '0.0.0.0'; 
 
 /*==============================
 server application configurations
@@ -23,6 +25,8 @@ server application configurations
 DBConnect()
 const app = express()
 app.use(express.json());
+
+
 
 /*==============================
 routes
