@@ -19,12 +19,15 @@ include environment variables
 const port = process.env.PORT || 8888;
 const hostName = process.env.HOSTNAME;
 
+
 /*==============================
 server application configurations
 ==============================*/
 DBConnect();
 const app = express();
 app.use(express.json());
+
+
 
 /*==============================
 routes
