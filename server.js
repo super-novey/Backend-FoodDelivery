@@ -44,6 +44,6 @@ app.use("/public", express.static(path.join(__dirname, "public")));
 /*==============================
 start server listen
 ==============================*/
-app.listen(port, hostName, () => {
+app.listen(port, "0.0.0.0", () => {
   console.log(`app listening on port ${port}`);
 });
