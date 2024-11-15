@@ -2,6 +2,7 @@ const AsyncHandler = require("express-async-handler");
 const Category = require("../models/Category");
 const Partner = require("../models/Partner");
 const { StatusCodes } = require("http-status-codes");
+const ApiError = require("./error/ApiError");
 const ApiResponse = require("./response/ApiResponse");
 const mongoose = require("mongoose");
 
@@ -106,4 +107,19 @@ const getCategoriesByPartnerId = AsyncHandler(async (req, res) => {
     );
 });
 
-module.exports = { addCategory, getCategoriesByPartnerId };
+const deleteCategory = AsyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  //is category exists
+  const category = await Category.findByIdAndDelete(id);
+  if (!category) {
+    // If not found, throw error
+    throw new ApiError("Category is not found");
+  }
+
+  res
+    .status(StatusCodes.OK)
+    .json(ApiResponse("Category deleted successfully.", StatusCodes.OK));
+});
+
+module.exports = { addCategory, getCategoriesByPartnerId, deleteCategory };
