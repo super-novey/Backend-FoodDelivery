@@ -16,7 +16,7 @@ const ApiResponse = require("./response/ApiResponse");
  * @access public
  */
 const register = AsyncHandler(async (req, res) => {
-  const {name, email, password, role, phone} = req.body;
+  const { name, email, password, role, phone } = req.body;
 
   // is user exists
   const userExists = await User.findOne({ email });
@@ -36,8 +36,8 @@ const register = AsyncHandler(async (req, res) => {
   const user = await User.create({
     name: name,
     email: email,
-    hashedPassword: hashedPassword,
-    role: role, 
+    password: hashedPassword,
+    role: role,
     phone: phone,
   });
 
@@ -68,7 +68,8 @@ const login = AsyncHandler(async (req, res) => {
 
   // check for user email
   const user = await User.findOne({ email });
-  const authenticate = user && (await bcrypt.compare(password, user.hashedPassword));
+  const authenticate =
+    user && (await bcrypt.compare(password, user.hashedPassword));
 
   if (!authenticate) {
     throw new ApiError("Invalid credentials!", StatusCodes.UNAUTHORIZED, {

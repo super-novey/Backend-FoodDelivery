@@ -3,27 +3,27 @@ const mongoose = require("mongoose");
 const UserSchema = mongoose.Schema(
   {
     name: {
-      type: String
+      type: String,
     },
     email: {
       type: String,
       required: true,
     },
-    hashedPassword: {
+    password: {
       type: String,
       required: true,
     },
     status: {
-      type: Boolean,  //true: Avaiable, false: Unavailable
-      default: false
-    }, 
+      type: Boolean, //true: Avaiable, false: Unavailable
+      default: false,
+    },
     role: {
       type: String,
-      enum: ['admin', 'partner', 'driver', 'customer'],
-      default: ['customer']
+      enum: ["admin", "partner", "driver", "customer"],
+      default: ["customer"],
     },
     phone: {
-      type: String
+      type: String,
     },
   },
   {
