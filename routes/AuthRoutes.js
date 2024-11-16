@@ -13,5 +13,6 @@ router.post(
 );
 
 router.post("/register", AuthController.register);
+// router.post("/sendOTP", AuthController.sendOtp);
 
 module.exports = router;
