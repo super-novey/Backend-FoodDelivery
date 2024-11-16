@@ -68,8 +68,7 @@ const login = AsyncHandler(async (req, res) => {
 
   // check for user email
   const user = await User.findOne({ email });
-  const authenticate =
-    user && (await bcrypt.compare(password, user.hashedPassword));
+  const authenticate = user && (await bcrypt.compare(password, user.password));
 
   if (!authenticate) {
     throw new ApiError("Invalid credentials!", StatusCodes.UNAUTHORIZED, {
