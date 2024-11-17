@@ -48,6 +48,7 @@ const register = AsyncHandler(async (req, res) => {
     otpExpires: otpExpires,
   });
 
+  // send OTP via email
   transporter.sendMail(
     {
       from: process.env.EMAIL_USER,
@@ -109,47 +110,48 @@ const login = AsyncHandler(async (req, res) => {
     .json(ApiResponse("User logged in successfully.", responseData));
 });
 
-// const sendOtp = AsyncHandler(async (req, res) => {
-//   const { email } = req.body;
-//   const user = await User.findOne({ email });
+const resendOTP = AsyncHandler(async (req, res) => {
+  const { email } = req.body;
 
-//   // if (!user)
-//   //   throw new ApiError(
-//   //     "User with provided Email address already exists",
-//   //     StatusCodes.CONFLICT
-//   //   );
+  // is user exists
+  const userExists = await User.findOne({ email });
 
-//   // Generate OTP and save it
-//   const { otp, otpExpires } = generateOtp();
-//   user.otp = otp;
-//   user.otp_expires = otpExpires;
-//   await user.save();
+  if (userExists) {
+    throw new ApiError(
+      "User with provided Email address already exists",
+      StatusCodes.CONFLICT
+    );
+  }
 
-//   const mailOptions = {
-//     from: process.env.EMAIL_USER,
-//     to: email,
-//     subject: "Your OTP for Verification",
-//     text: `Your OTP is ${otp}. It is valid for 5 minutes.`,
-//   };
-//   await transporter.sendMail(mailOptions);
-//   res.status(StatusCodes.OK).json(ApiResponse("OTP sent to email"));
-// });
-// verifyOtp: (email, otp) =>
-//   new Promise(async (resolve, reject) => {
-//     try {
-//       const driver = await Driver.findOne({ where: { email } });
-//       if (!driver) reject(new Error("Driver not found"));
-//       if (driver.otp !== otp) reject(new Error("Invalid OTP"));
-//       if (new Date() > new Date(driver.otp_expires))
-//         reject(new Error("OTP expired"));
-//       driver.otp = null;
-//       driver.otp_expires = null;
-//       await driver.save();
-//       resolve({ success: true, message: "OTP verified successfully" });
-//     } catch (err) {
-//       reject(err.message);
-//     }
-//   });
+  // Generate OTP
+  const { otp, otpExpires } = generateOtp();
+
+  userExists.otp = otp;
+  userExists.otpExpires = otpExpires;
+  await userExists.save();
+
+  res.status(StatusCodes.OK).json(ApiResponse("OTP resend successfully"));
+});
+
+const verifyOtp = AsyncHandler(async (req, res) => {
+  const { email, otp } = req.body;
+
+  const userExists = await User.findOne({ email });
+  if (!userExists)
+    throw new ApiError("User not found!", StatusCodes.UNAUTHORIZED);
+
+  if (userExists.otp !== otp) throw new ApiError("Invalid OTP");
+
+  if (new Date() > new Date(userExists.otpExpires))
+    throw new ApiError("OTP expired");
+
+  userExists.otp = null;
+  userExists.otpExpires = null;
+
+  await userExists.save();
+
+  res.status(StatusCodes.OK).json(ApiResponse("OTP verified successfully"));
+});
 
 /**
  * @desc get currently authenticated user (login)
@@ -186,4 +188,6 @@ module.exports = {
   register,
   login,
   getCurrentUser,
+  verifyOtp,
+  resendOTP,
 };

@@ -13,6 +13,7 @@ router.post(
 );
 
 router.post("/register", AuthController.register);
-// router.post("/sendOTP", AuthController.sendOtp);
+router.post("/verifyOTP", AuthController.verifyOtp);
+router.post("/resendOTP", AuthController.resendOTP);
 
 module.exports = router;
