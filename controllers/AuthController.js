@@ -99,6 +99,9 @@ const login = AsyncHandler(async (req, res) => {
       credentials: { email, password },
     });
   }
+  if (user.otp !== null || user.otpExpires !== null) {
+    throw new ApiError("User is unauthorized!", StatusCodes.UNAUTHORIZED);
+  }
 
   const responseData = {
     user,
@@ -116,11 +119,8 @@ const resendOTP = AsyncHandler(async (req, res) => {
   // is user exists
   const userExists = await User.findOne({ email });
 
-  if (userExists) {
-    throw new ApiError(
-      "User with provided Email address already exists",
-      StatusCodes.CONFLICT
-    );
+  if (!userExists) {
+    throw new ApiError("User not found!", StatusCodes.CONFLICT);
   }
 
   // Generate OTP
@@ -128,7 +128,25 @@ const resendOTP = AsyncHandler(async (req, res) => {
 
   userExists.otp = otp;
   userExists.otpExpires = otpExpires;
+
   await userExists.save();
+
+  // send OTP via email
+  transporter.sendMail(
+    {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "Xác thực OTP",
+      text: `Mã OTP của bạn là: ${otp}`,
+    },
+    (error, info) => {
+      if (error) {
+        console.log("Error:", error);
+      } else {
+        console.log("Email sent:", info.response);
+      }
+    }
+  );
 
   res.status(StatusCodes.OK).json(ApiResponse("OTP resend successfully"));
 });
