@@ -10,6 +10,7 @@ const AuthRoutes = require("./AuthRoutes");
 const DriverRoutes = require("./DriverRoutes")
 const PartnerRoutes = require("./PartnerRoutes")
 const CategoryRoutes = require("./CategoryRoutes")
+const UserRoutes = require("./UserRoutes")
 
 
 // router.use(
@@ -28,5 +29,6 @@ router.use("/auth", AuthRoutes);
 router.use("/driver", DriverRoutes)
 router.use("/partner", PartnerRoutes)
 router.use("/category", CategoryRoutes)
+router.use("/user", UserRoutes)
 
 module.exports = router;

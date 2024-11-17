@@ -11,4 +11,22 @@ const ApiResponse = require("./response/ApiResponse");
 
 // get user by type
 
-// 
+const loadListUser = AsyncHandler(async (req, res) => {
+    try {
+      const users = await User.find();
+  
+      if (!users || users.length === 0) {
+        return res
+          .status(StatusCodes.NOT_FOUND)
+          .json(ApiResponse("No users found", null, StatusCodes.NOT_FOUND));
+      }
+  
+      res
+        .status(StatusCodes.OK)
+        .json(ApiResponse("Users retrieved successfully", users, StatusCodes.OK));
+    } catch (error) {
+      throw new ApiError("Failed to retrieve users", StatusCodes.INTERNAL_SERVER_ERROR);
+    }
+  });
+  
+  module.exports = { loadListUser };
