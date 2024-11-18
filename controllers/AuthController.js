@@ -15,12 +15,14 @@ const ApiResponse = require("./response/ApiResponse");
 
 // Services
 const { isUserExists, createUser } = require("../services/UserServices");
-const { createDriver } = require("../services/DriverServices");
+const {
+  createDriver,
+  getDriverWithUserDetails,
+} = require("../services/DriverServices");
 const {
   returnSingleFilePath,
   singleFileTransfer,
 } = require("../helpers/fileHelpers");
-const { fields } = require("../config/multer");
 
 /**
  * @desc Register new user
@@ -104,8 +106,19 @@ const register = AsyncHandler(async (req, res) => {
 });
 
 const driverRegister = AsyncHandler(async (req, res) => {
-  const { name, email, password, role, phone, licensePlate } = req.body;
+  const {
+    name,
+    email,
+    password,
+    phone,
+    licensePlate,
+    provinceId,
+    districtId,
+    communeId,
+    detailAddress,
+  } = req.body;
 
+  const role = "driver";
   const userExists = await isUserExists(email, role);
 
   if (userExists)
@@ -181,15 +194,21 @@ const driverRegister = AsyncHandler(async (req, res) => {
     licensePlate,
     licenseFrontUrl,
     licenseBackUrl,
-    profileUrl
+    profileUrl,
+    provinceId,
+    districtId,
+    communeId,
+    detailAddress
   );
+
+  // const data = await getDriverWithUserDetails(newDriver._id);
 
   res
     .status(StatusCodes.CREATED)
     .json(
       ApiResponse(
         "Driver registered successfully.",
-        { newDriver },
+        newDriver,
         StatusCodes.CREATED
       )
     );

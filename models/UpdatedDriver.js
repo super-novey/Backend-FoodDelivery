@@ -27,6 +27,22 @@ const UpdatedDriverSchema = Schema(
       type: Boolean,
       default: false,
     },
+
+    provinceId: {
+      type: String,
+    },
+
+    districtId: {
+      type: String,
+    },
+
+    communeId: {
+      type: String,
+    },
+
+    detailAddress: {
+      type: String,
+    },
   },
   {
     timeStamp: true,

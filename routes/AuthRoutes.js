@@ -13,9 +13,10 @@ router.post(
   AuthController.login
 );
 
-// router.post("/register", AuthController.register);
+router.post("/register", AuthController.register);
+
 router.post(
-  "/register",
+  "/driverRegister",
   upload.fields([
     { name: "profileUrl", maxCount: 1 },
     { name: "licenseFrontUrl", maxCount: 1 },

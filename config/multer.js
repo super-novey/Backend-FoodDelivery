@@ -27,6 +27,8 @@ const upload = multer({
     const supportedFile = /jpg|jpeg|png|webp|svg|pdf/;
     const extension = path.extname(file.originalname).toLowerCase();
 
+    console.log("File Extension:", extension);
+
     if (supportedFile.test(extension)) {
       cb(null, true);
     } else {
