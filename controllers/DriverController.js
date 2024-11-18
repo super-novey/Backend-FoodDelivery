@@ -127,5 +127,21 @@ const updateDateDriver = AsyncHandler(async (req, res) => {
     .status(StatusCodes.OK)
     .json(ApiResponse("Driver updated successfully.", StatusCodes.OK));
 });
+const getDriverById = AsyncHandler(async (req, res) => {
+  const { id } = req.params;
 
-module.exports = { createDriver, deleteDriver, updateDateDriver };
+  const driver = await Driver.findById(id).populate("userID", "name, email, phone");
+
+  if (!driver) {
+    return res
+      .status(StatusCodes.NOT_FOUND)
+      .json(ApiResponse("Driver is not found", null, StatusCodes.NOT_FOUND));
+  }
+
+  res
+    .status(StatusCodes.OK)
+    .json(ApiResponse("Driver fetched successfully", driver, StatusCodes.OK));
+});
+
+module.exports = { createDriver, deleteDriver, updateDateDriver, getDriverById };
+
