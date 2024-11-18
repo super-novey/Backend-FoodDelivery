@@ -3,7 +3,7 @@ const { Schema } = mongoose;
 
 const UpdatedDriverSchema = Schema(
   {
-    userID: {
+    userId: {
       type: Schema.Types.ObjectId,
       ref: "User",
     },
