@@ -26,17 +26,22 @@ server application configurations
 DBConnect();
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:50755", // Flutter web origin
+    methods: "GET,POST,PUT,DELETE",
+  })
+);
 
 /*==============================
 routes
 ==============================*/
-app.use(
-  upload.fields([
-    { name: "single", maxCount: 1 },
-    { name: "multiple", maxCount: 10 },
-  ])
-);
+// app.use(
+//   upload.fields([
+//     { name: "single", maxCount: 1 },
+//     { name: "multiple", maxCount: 10 },
+//   ])
+// );
 app.use("/api/v1", Routes); // routes and prefix
 
 /*==============================

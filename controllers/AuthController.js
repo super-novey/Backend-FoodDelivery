@@ -9,8 +9,18 @@ const AsyncHandler = require("express-async-handler");
 const { StatusCodes } = require("http-status-codes");
 
 const User = require("../models/User");
+const UpdatedDriver = require("..//models/UpdatedDriver");
 const ApiError = require("./error/ApiError");
 const ApiResponse = require("./response/ApiResponse");
+
+// Services
+const { isUserExists, createUser } = require("../services/UserServices");
+const { createDriver } = require("../services/DriverServices");
+const {
+  returnSingleFilePath,
+  singleFileTransfer,
+} = require("../helpers/fileHelpers");
+const { fields } = require("../config/multer");
 
 /**
  * @desc Register new user
@@ -29,7 +39,18 @@ const register = AsyncHandler(async (req, res) => {
       StatusCodes.CONFLICT
     );
   }
-
+  // if (userExists) {
+  //   return res
+  //     .status(StatusCodes.CONFLICT)
+  //     .json(
+  //       ApiResponse(
+  //         "User with provided Email address already exists",
+  //         null,
+  //         StatusCodes.CONFLICT,
+  //         true
+  //       )
+  //     );
+  // }
   // Hash password
   const salt = await bcrypt.genSalt();
   const hashedPassword = await bcrypt.hash(password, salt);
@@ -82,6 +103,97 @@ const register = AsyncHandler(async (req, res) => {
     );
 });
 
+const driverRegister = AsyncHandler(async (req, res) => {
+  const { name, email, password, role, phone, licensePlate } = req.body;
+
+  const userExists = await isUserExists(email, role);
+
+  if (userExists)
+    return res
+      .status(StatusCodes.CONFLICT)
+      .json(
+        ApiResponse(
+          "User with provided Email address already exists",
+          null,
+          StatusCodes.CONFLICT,
+          true
+        )
+      );
+
+  // Hash password
+  const salt = await bcrypt.genSalt();
+  const hashedPassword = await bcrypt.hash(password, salt);
+
+  // Generate OTP
+  const { otp, otpExpires } = generateOtp();
+
+  const user = await createUser(
+    name,
+    email,
+    hashedPassword,
+    role,
+    phone,
+    otp,
+    otpExpires
+  );
+
+  if (!user) {
+    throw new ApiError(
+      "Internal Server Error! Server failed creating new user."
+    );
+  }
+
+  let profileUrl = "";
+  let licenseFrontUrl = "";
+  let licenseBackUrl = "";
+
+  if (req.files && Object.keys(req.files).length > 0) {
+    if (req.files.profileUrl) {
+      const imagePaths = await returnSingleFilePath(
+        req.files.profileUrl,
+        "profileUrl"
+      );
+      if (imagePaths.length)
+        profileUrl = singleFileTransfer(imagePaths, `${user._id}`);
+    }
+
+    if (req.files.licenseFrontUrl) {
+      const imagePaths = await returnSingleFilePath(
+        req.files.licenseFrontUrl,
+        "licenseFrontUrl"
+      );
+      if (imagePaths.length)
+        licenseFrontUrl = singleFileTransfer(imagePaths, `${user._id}`);
+    }
+
+    if (req.files.licenseBackUrl) {
+      const imagePaths = await returnSingleFilePath(
+        req.files.licenseBackUrl,
+        "licenseBackUrl"
+      );
+      if (imagePaths.length)
+        licenseBackUrl = singleFileTransfer(imagePaths, `${user._id}`);
+    }
+  }
+
+  const newDriver = await createDriver(
+    user._id,
+    licensePlate,
+    licenseFrontUrl,
+    licenseBackUrl,
+    profileUrl
+  );
+
+  res
+    .status(StatusCodes.CREATED)
+    .json(
+      ApiResponse(
+        "Driver registered successfully.",
+        { newDriver },
+        StatusCodes.CREATED
+      )
+    );
+});
 /**
  * @desc authenticate user (login)
  * @route POST /api/v1/auth/login
@@ -208,4 +320,5 @@ module.exports = {
   getCurrentUser,
   verifyOtp,
   resendOTP,
+  driverRegister,
 };
