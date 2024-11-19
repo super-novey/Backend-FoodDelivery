@@ -29,4 +29,5 @@ router.use("/driver", DriverRoutes)
 router.use("/partner", PartnerRoutes)
 router.use("/category", CategoryRoutes)
 
+
 module.exports = router;

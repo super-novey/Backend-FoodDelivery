@@ -178,33 +178,10 @@ const driverRegister = AsyncHandler(async (req, res) => {
   let licenseFrontUrl = "";
   let licenseBackUrl = "";
 
-  if (req.files && Object.keys(req.files).length > 0) {
-    if (req.files.profileUrl) {
-      const imagePaths = await returnSingleFilePath(
-        req.files.profileUrl,
-        "profileUrl"
-      );
-      if (imagePaths.length)
-        profileUrl = singleFileTransfer(imagePaths, `${user._id}`);
-    }
-
-    if (req.files.licenseFrontUrl) {
-      const imagePaths = await returnSingleFilePath(
-        req.files.licenseFrontUrl,
-        "licenseFrontUrl"
-      );
-      if (imagePaths.length)
-        licenseFrontUrl = singleFileTransfer(imagePaths, `${user._id}`);
-    }
-
-    if (req.files.licenseBackUrl) {
-      const imagePaths = await returnSingleFilePath(
-        req.files.licenseBackUrl,
-        "licenseBackUrl"
-      );
-      if (imagePaths.length)
-        licenseBackUrl = singleFileTransfer(imagePaths, `${user._id}`);
-    }
+  if (req.files) {
+    profileUrl = req.files.profileUrl[0].path;
+    licenseFrontUrl = req.files.licenseFrontUrl[0].path;
+    licenseBackUrl = req.files.licenseBackUrl[0].path;
   }
 
   const newDriver = await createDriver(
@@ -304,42 +281,11 @@ const partnerRegister = AsyncHandler(async (req, res) => {
   let CCCDFrontUrl = "";
   let CCCDBackUrl = "";
 
-  if (req.files && Object.keys(req.files).length > 0) {
-    if (req.files.avatarUrl) {
-      const imagePaths = await returnSingleFilePath(
-        req.files.avatarUrl,
-        "avatarUrl"
-      );
-      if (imagePaths.length)
-        avatarUrl = singleFileTransfer(imagePaths, `${user._id}`);
-    }
-
-    if (req.files.storeFront) {
-      const imagePaths = await returnSingleFilePath(
-        req.files.storeFront,
-        "storeFront"
-      );
-      if (imagePaths.length)
-        storeFront = singleFileTransfer(imagePaths, `${user._id}`);
-    }
-
-    if (req.files.CCCDFrontUrl) {
-      const imagePaths = await returnSingleFilePath(
-        req.files.CCCDFrontUrl,
-        "CCCDFrontUrl"
-      );
-      if (imagePaths.length)
-        CCCDFrontUrl = singleFileTransfer(imagePaths, `${user._id}`);
-    }
-
-    if (req.files.CCCDBackUrl) {
-      const imagePaths = await returnSingleFilePath(
-        req.files.CCCDBackUrl,
-        "CCCDBackUrl"
-      );
-      if (imagePaths.length)
-        CCCDBackUrl = singleFileTransfer(imagePaths, `${user._id}`);
-    }
+  if (req.files) {
+    avatarUrl = req.files.avatarUrl[0].path;
+    storeFront = req.files.storeFront[0].path;
+    CCCDFrontUrl = req.files.CCCDFrontUrl[0].path;
+    CCCDBackUrl = req.files.CCCDBackUrl[0].path;
   }
 
   const newPartner = await createPartner(
