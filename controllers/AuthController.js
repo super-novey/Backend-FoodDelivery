@@ -15,12 +15,16 @@ const ApiResponse = require("./response/ApiResponse");
 
 // Services
 const { isUserExists, createUser } = require("../services/UserServices");
-const { createDriver } = require("../services/DriverServices");
+const {
+  createDriver,
+  getDriverWithUserDetails,
+} = require("../services/DriverServices");
+
+const { createPartner } = require("../services/PartnerServices");
 const {
   returnSingleFilePath,
   singleFileTransfer,
 } = require("../helpers/fileHelpers");
-const { fields } = require("../config/multer");
 
 /**
  * @desc Register new user
@@ -104,8 +108,19 @@ const register = AsyncHandler(async (req, res) => {
 });
 
 const driverRegister = AsyncHandler(async (req, res) => {
-  const { name, email, password, role, phone, licensePlate } = req.body;
+  const {
+    name,
+    email,
+    password,
+    phone,
+    licensePlate,
+    provinceId,
+    districtId,
+    communeId,
+    detailAddress,
+  } = req.body;
 
+  const role = "driver";
   const userExists = await isUserExists(email, role);
 
   if (userExists)
@@ -142,6 +157,22 @@ const driverRegister = AsyncHandler(async (req, res) => {
       "Internal Server Error! Server failed creating new user."
     );
   }
+
+  transporter.sendMail(
+    {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "Xác thực OTP",
+      text: `Mã OTP của bạn là: ${otp}`,
+    },
+    (error, info) => {
+      if (error) {
+        console.log("Error:", error);
+      } else {
+        console.log("Email sent:", info.response);
+      }
+    }
+  );
 
   let profileUrl = "";
   let licenseFrontUrl = "";
@@ -181,15 +212,157 @@ const driverRegister = AsyncHandler(async (req, res) => {
     licensePlate,
     licenseFrontUrl,
     licenseBackUrl,
-    profileUrl
+    profileUrl,
+    provinceId,
+    districtId,
+    communeId,
+    detailAddress
   );
+
+  // const data = await getDriverWithUserDetails(newDriver._id);
 
   res
     .status(StatusCodes.CREATED)
     .json(
       ApiResponse(
         "Driver registered successfully.",
-        { newDriver },
+        newDriver,
+        StatusCodes.CREATED
+      )
+    );
+});
+
+const partnerRegister = AsyncHandler(async (req, res) => {
+  const {
+    name,
+    email,
+    password,
+    phone,
+    provinceId,
+    districtId,
+    communeId,
+    detailAddress,
+    description,
+  } = req.body;
+
+  const role = "partner";
+  const userExists = await isUserExists(email, role);
+
+  if (userExists)
+    return res
+      .status(StatusCodes.CONFLICT)
+      .json(
+        ApiResponse(
+          "User with provided Email address already exists",
+          null,
+          StatusCodes.CONFLICT,
+          true
+        )
+      );
+
+  // Hash password
+  const salt = await bcrypt.genSalt();
+  const hashedPassword = await bcrypt.hash(password, salt);
+
+  // Generate OTP
+  const { otp, otpExpires } = generateOtp();
+
+  const user = await createUser(
+    name,
+    email,
+    hashedPassword,
+    role,
+    phone,
+    otp,
+    otpExpires
+  );
+
+  if (!user) {
+    throw new ApiError(
+      "Internal Server Error! Server failed creating new user."
+    );
+  }
+
+  transporter.sendMail(
+    {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "Xác thực OTP",
+      text: `Mã OTP của bạn là: ${otp}`,
+    },
+    (error, info) => {
+      if (error) {
+        console.log("Error:", error);
+      } else {
+        console.log("Email sent:", info.response);
+      }
+    }
+  );
+
+  let avatarUrl = "";
+  let storeFront = "";
+  let CCCDFrontUrl = "";
+  let CCCDBackUrl = "";
+
+  if (req.files && Object.keys(req.files).length > 0) {
+    if (req.files.avatarUrl) {
+      const imagePaths = await returnSingleFilePath(
+        req.files.avatarUrl,
+        "avatarUrl"
+      );
+      if (imagePaths.length)
+        avatarUrl = singleFileTransfer(imagePaths, `${user._id}`);
+    }
+
+    if (req.files.storeFront) {
+      const imagePaths = await returnSingleFilePath(
+        req.files.storeFront,
+        "storeFront"
+      );
+      if (imagePaths.length)
+        storeFront = singleFileTransfer(imagePaths, `${user._id}`);
+    }
+
+    if (req.files.CCCDFrontUrl) {
+      const imagePaths = await returnSingleFilePath(
+        req.files.CCCDFrontUrl,
+        "CCCDFrontUrl"
+      );
+      if (imagePaths.length)
+        CCCDFrontUrl = singleFileTransfer(imagePaths, `${user._id}`);
+    }
+
+    if (req.files.CCCDBackUrl) {
+      const imagePaths = await returnSingleFilePath(
+        req.files.CCCDBackUrl,
+        "CCCDBackUrl"
+      );
+      if (imagePaths.length)
+        CCCDBackUrl = singleFileTransfer(imagePaths, `${user._id}`);
+    }
+  }
+
+  const newPartner = await createPartner(
+    user._id,
+    description,
+    provinceId,
+    districtId,
+    communeId,
+    detailAddress,
+    avatarUrl,
+    storeFront,
+    CCCDFrontUrl,
+    CCCDBackUrl
+  );
+
+  // const data = await getDriverWithUserDetails(newDriver._id);
+
+  res
+    .status(StatusCodes.CREATED)
+    .json(
+      ApiResponse(
+        "Partner registered successfully.",
+        newPartner,
         StatusCodes.CREATED
       )
     );
@@ -321,4 +494,5 @@ module.exports = {
   verifyOtp,
   resendOTP,
   driverRegister,
+  partnerRegister,
 };

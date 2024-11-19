@@ -5,7 +5,11 @@ const createDriver = async (
   licensePlate,
   licenseFrontUrl,
   licenseBackUrl,
-  profileUrl
+  profileUrl,
+  provinceId,
+  districtId,
+  communeId,
+  detailAddress
 ) => {
   return await UpdatedDriver.create({
     userId: userId,
@@ -13,7 +17,26 @@ const createDriver = async (
     licensePlate,
     licenseFrontUrl: licenseFrontUrl,
     licenseBackUrl: licenseBackUrl,
+    provinceId: provinceId,
+    districtId: districtId,
+    communeId: communeId,
+    detailAddress: detailAddress,
   });
 };
 
-module.exports = { createDriver };
+const getDriverWithUserDetails = async (driverId) => {
+  try {
+    const driver = await UpdatedDriver.findById(driverId).populate("userId");
+    if (!driver) {
+      return null;
+    }
+
+    return driver;
+  } catch (error) {
+    throw new Error(
+      "Error fetching driver with user details: " + error.message
+    );
+  }
+};
+
+module.exports = { createDriver, getDriverWithUserDetails };

@@ -13,15 +13,27 @@ router.post(
   AuthController.login
 );
 
-// router.post("/register", AuthController.register);
+router.post("/register", AuthController.register);
+
 router.post(
-  "/register",
+  "/driverRegister",
   upload.fields([
     { name: "profileUrl", maxCount: 1 },
     { name: "licenseFrontUrl", maxCount: 1 },
     { name: "licenseBackUrl", maxCount: 1 },
   ]),
   AuthController.driverRegister
+);
+
+router.post(
+  "/partnerRegister",
+  upload.fields([
+    { name: "avatarUrl", maxCount: 1 },
+    { name: "storeFront", maxCount: 1 },
+    { name: "CCCDFrontUrl", maxCount: 1 },
+    { name: "CCCDBackUrl", maxCount: 1 },
+  ]),
+  AuthController.partnerRegister
 );
 
 router.post("/verifyOTP", AuthController.verifyOtp);

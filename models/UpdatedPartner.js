@@ -1,33 +1,38 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-const UpdatedDriverSchema = Schema(
+const UpdatedPartnerSchema = Schema(
   {
     userId: {
       type: Schema.Types.ObjectId,
       ref: "User",
     },
-    profileUrl: {
+    avatarUrl: {
+      type: String,
+    },
+    storeFront: {
+      type: String,
+    },
+    CCCDFrontUrl: {
+      type: String,
+    },
+    CCCDBackUrl: {
       type: String,
     },
 
-    licensePlate: {
+    description: {
       type: String,
     },
-
-    licenseFrontUrl: {
-      type: String,
-    },
-
-    licenseBackUrl: {
-      type: String,
-    },
-
     status: {
       type: Boolean,
       default: false,
     },
-
+    categoryOrderIdx: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Category",
+      },
+    ],
     provinceId: {
       type: String,
     },
@@ -48,5 +53,4 @@ const UpdatedDriverSchema = Schema(
     timeStamp: true,
   }
 );
-
-module.exports = mongoose.model("UpdatedDriver", UpdatedDriverSchema);
+module.exports = mongoose.model("UpdatedPartner", UpdatedPartnerSchema);
