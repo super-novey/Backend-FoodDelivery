@@ -158,6 +158,22 @@ const driverRegister = AsyncHandler(async (req, res) => {
     );
   }
 
+  transporter.sendMail(
+    {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "Xác thực OTP",
+      text: `Mã OTP của bạn là: ${otp}`,
+    },
+    (error, info) => {
+      if (error) {
+        console.log("Error:", error);
+      } else {
+        console.log("Email sent:", info.response);
+      }
+    }
+  );
+
   let profileUrl = "";
   let licenseFrontUrl = "";
   let licenseBackUrl = "";
@@ -266,6 +282,22 @@ const partnerRegister = AsyncHandler(async (req, res) => {
       "Internal Server Error! Server failed creating new user."
     );
   }
+
+  transporter.sendMail(
+    {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "Xác thực OTP",
+      text: `Mã OTP của bạn là: ${otp}`,
+    },
+    (error, info) => {
+      if (error) {
+        console.log("Error:", error);
+      } else {
+        console.log("Email sent:", info.response);
+      }
+    }
+  );
 
   let avatarUrl = "";
   let storeFront = "";
