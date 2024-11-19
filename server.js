@@ -26,12 +26,7 @@ server application configurations
 DBConnect();
 const app = express();
 app.use(express.json());
-app.use(
-  cors({
-    origin: "http://localhost:50755", // Flutter web origin
-    methods: "GET,POST,PUT,DELETE",
-  })
-);
+app.use(cors());
 
 /*==============================
 routes

@@ -19,6 +19,8 @@ const {
   createDriver,
   getDriverWithUserDetails,
 } = require("../services/DriverServices");
+
+const { createPartner } = require("../services/PartnerServices");
 const {
   returnSingleFilePath,
   singleFileTransfer,
@@ -213,6 +215,126 @@ const driverRegister = AsyncHandler(async (req, res) => {
       )
     );
 });
+
+const partnerRegister = AsyncHandler(async (req, res) => {
+  const {
+    name,
+    email,
+    password,
+    phone,
+    provinceId,
+    districtId,
+    communeId,
+    detailAddress,
+    description,
+  } = req.body;
+
+  const role = "partner";
+  const userExists = await isUserExists(email, role);
+
+  if (userExists)
+    return res
+      .status(StatusCodes.CONFLICT)
+      .json(
+        ApiResponse(
+          "User with provided Email address already exists",
+          null,
+          StatusCodes.CONFLICT,
+          true
+        )
+      );
+
+  // Hash password
+  const salt = await bcrypt.genSalt();
+  const hashedPassword = await bcrypt.hash(password, salt);
+
+  // Generate OTP
+  const { otp, otpExpires } = generateOtp();
+
+  const user = await createUser(
+    name,
+    email,
+    hashedPassword,
+    role,
+    phone,
+    otp,
+    otpExpires
+  );
+
+  if (!user) {
+    throw new ApiError(
+      "Internal Server Error! Server failed creating new user."
+    );
+  }
+
+  let avatarUrl = "";
+  let storeFront = "";
+  let CCCDFrontUrl = "";
+  let CCCDBackUrl = "";
+
+  if (req.files && Object.keys(req.files).length > 0) {
+    if (req.files.avatarUrl) {
+      const imagePaths = await returnSingleFilePath(
+        req.files.avatarUrl,
+        "avatarUrl"
+      );
+      if (imagePaths.length)
+        avatarUrl = singleFileTransfer(imagePaths, `${user._id}`);
+    }
+
+    if (req.files.storeFront) {
+      const imagePaths = await returnSingleFilePath(
+        req.files.storeFront,
+        "storeFront"
+      );
+      if (imagePaths.length)
+        storeFront = singleFileTransfer(imagePaths, `${user._id}`);
+    }
+
+    if (req.files.CCCDFrontUrl) {
+      const imagePaths = await returnSingleFilePath(
+        req.files.CCCDFrontUrl,
+        "CCCDFrontUrl"
+      );
+      if (imagePaths.length)
+        CCCDFrontUrl = singleFileTransfer(imagePaths, `${user._id}`);
+    }
+
+    if (req.files.CCCDBackUrl) {
+      const imagePaths = await returnSingleFilePath(
+        req.files.CCCDBackUrl,
+        "CCCDBackUrl"
+      );
+      if (imagePaths.length)
+        CCCDBackUrl = singleFileTransfer(imagePaths, `${user._id}`);
+    }
+  }
+
+  const newPartner = await createPartner(
+    user._id,
+    description,
+    provinceId,
+    districtId,
+    communeId,
+    detailAddress,
+    avatarUrl,
+    storeFront,
+    CCCDFrontUrl,
+    CCCDBackUrl
+  );
+
+  // const data = await getDriverWithUserDetails(newDriver._id);
+
+  res
+    .status(StatusCodes.CREATED)
+    .json(
+      ApiResponse(
+        "Partner registered successfully.",
+        newPartner,
+        StatusCodes.CREATED
+      )
+    );
+});
 /**
  * @desc authenticate user (login)
  * @route POST /api/v1/auth/login
@@ -340,4 +462,5 @@ module.exports = {
   verifyOtp,
   resendOTP,
   driverRegister,
+  partnerRegister,
 };

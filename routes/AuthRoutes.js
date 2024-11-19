@@ -25,6 +25,17 @@ router.post(
   AuthController.driverRegister
 );
 
+router.post(
+  "/partnerRegister",
+  upload.fields([
+    { name: "avatarUrl", maxCount: 1 },
+    { name: "storeFront", maxCount: 1 },
+    { name: "CCCDFrontUrl", maxCount: 1 },
+    { name: "CCCDBackUrl", maxCount: 1 },
+  ]),
+  AuthController.partnerRegister
+);
+
 router.post("/verifyOTP", AuthController.verifyOtp);
 router.post("/resendOTP", AuthController.resendOTP);
 
