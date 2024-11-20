@@ -3,6 +3,7 @@ dotenv.config();
 const AsyncHandler = require("express-async-handler");
 const Driver = require("../models/Driver");
 const User = require("../models/User");
+const UpdatedPartner = require("../models/UpdatedPartner");
 const ApiError = require("./error/ApiError");
 const { StatusCodes } = require("http-status-codes");
 const ApiResponse = require("./response/ApiResponse");
@@ -103,5 +104,30 @@ const delelePartner = AsyncHandler(async (req, res) => {
 //     }
 //   }
 // });
+const getPartnerById = async (req, res) => {
+  try {
+    const { id } = req.params; 
+    const driver = await UpdatedPartner.findOne({ userId: id }).populate("userId");
 
-module.exports = { createPartner, delelePartner };
+    if (!driver) {
+      return res.status(404).json({
+        success: false,
+        message: "Partner not found with provided userId",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Partner fetched successfully",
+      data: driver,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Partner error occurred",
+    });
+  }
+};
+
+module.exports = { createPartner, delelePartner, getPartnerById };

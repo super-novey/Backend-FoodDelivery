@@ -2,6 +2,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 const AsyncHandler = require("express-async-handler");
 const Driver = require("../models/Driver");
+const UpdatedDriver = require("../models/UpdatedDriver");
 const User = require("../models/User");
 const ApiError = require("./error/ApiError");
 const { StatusCodes } = require("http-status-codes");
@@ -127,21 +128,32 @@ const updateDateDriver = AsyncHandler(async (req, res) => {
     .status(StatusCodes.OK)
     .json(ApiResponse("Driver updated successfully.", StatusCodes.OK));
 });
-const getDriverById = AsyncHandler(async (req, res) => {
-  const { id } = req.params;
 
-  const driver = await Driver.findById(id).populate("userID", "name, email, phone");
+const getDriverById = async (req, res) => {
+  try {
+    const { id } = req.params; 
+    const driver = await UpdatedDriver.findOne({ userId: id }).populate("userId");
 
-  if (!driver) {
-    return res
-      .status(StatusCodes.NOT_FOUND)
-      .json(ApiResponse("Driver is not found", null, StatusCodes.NOT_FOUND));
+    if (!driver) {
+      return res.status(404).json({
+        success: false,
+        message: "Driver not found with provided userId",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Driver fetched successfully",
+      data: driver,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Server error occurred",
+    });
   }
-
-  res
-    .status(StatusCodes.OK)
-    .json(ApiResponse("Driver fetched successfully", driver, StatusCodes.OK));
-});
+};
 
 module.exports = { createDriver, deleteDriver, updateDateDriver, getDriverById };
 

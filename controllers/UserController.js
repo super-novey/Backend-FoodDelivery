@@ -56,6 +56,35 @@ const loadListUserByRoleAndStatus = AsyncHandler(async (req, res) => {
     throw new ApiError("Failed to retrieve users", StatusCodes.INTERNAL_SERVER_ERROR);
   }
 });
+const approveUser = AsyncHandler(async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    if (!userId) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json(ApiResponse("User ID is required", null, StatusCodes.BAD_REQUEST));
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { status: true }, 
+      { new: true } 
+    );
+
+    if (!updatedUser) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json(ApiResponse("User not found", null, StatusCodes.NOT_FOUND));
+    }
+
+    res
+      .status(StatusCodes.OK)
+      .json(ApiResponse("User approved successfully", updatedUser, StatusCodes.OK));
+  } catch (error) {
+    throw new ApiError("Failed to approve user", StatusCodes.INTERNAL_SERVER_ERROR);
+  }
+});
 
 
-module.exports = { loadListUser, loadListUserByRoleAndStatus };
+module.exports = { loadListUser, loadListUserByRoleAndStatus, approveUser };
