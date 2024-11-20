@@ -24,21 +24,6 @@ const createDriver = async (
   });
 };
 
-const getDriverWithUserDetails = async (driverId) => {
-  try {
-    const driver = await UpdatedDriver.findById(driverId).populate("userId");
-    if (!driver) {
-      return null;
-    }
-
-    return driver;
-  } catch (error) {
-    throw new Error(
-      "Error fetching driver with user details: " + error.message
-    );
-  }
-};
-
 const getDriverByUserID = async (userId) => {
   try {
     const driver = await UpdatedDriver.findOne({ userId })
@@ -58,4 +43,4 @@ const getDriverByUserID = async (userId) => {
   }
 };
 
-module.exports = { createDriver, getDriverWithUserDetails, getDriverByUserID };
+module.exports = { createDriver, getDriverByUserID };

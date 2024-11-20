@@ -15,10 +15,7 @@ const ApiResponse = require("./response/ApiResponse");
 
 // Services
 const { isUserExists, createUser } = require("../services/UserServices");
-const {
-  createDriver,
-  getDriverWithUserDetails,
-} = require("../services/DriverServices");
+const { createDriver } = require("../services/DriverServices");
 
 const { createPartner } = require("../services/PartnerServices");
 const {
@@ -330,9 +327,9 @@ const login = AsyncHandler(async (req, res) => {
       credentials: { email, password },
     });
   }
-  if (user.otp !== null || user.otpExpires !== null) {
-    throw new ApiError("User is unauthorized!", StatusCodes.UNAUTHORIZED);
-  }
+  // if (user.otp !== null || user.otpExpires !== null) {
+  //   throw new ApiError("User is unauthorized!", StatusCodes.UNAUTHORIZED);
+  // }
 
   const responseData = {
     user,

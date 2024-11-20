@@ -1,7 +1,7 @@
 const dotenv = require("dotenv");
 dotenv.config();
 const AsyncHandler = require("express-async-handler");
-const Driver = require("../models/Driver");
+
 const User = require("../models/User");
 const ApiError = require("./error/ApiError");
 const { StatusCodes } = require("http-status-codes");
@@ -12,6 +12,7 @@ const {
   removeFile,
 } = require("../helpers/fileHelpers");
 const Partner = require("../models/Partner");
+const { getPartnerByUserID } = require("../services/PartnerServices");
 
 const createPartner = AsyncHandler(async (req, res) => {
   const { userId, description } = req.body;
@@ -104,4 +105,14 @@ const delelePartner = AsyncHandler(async (req, res) => {
 //   }
 // });
 
-module.exports = { createPartner, delelePartner };
+const getPartnerByUserId = AsyncHandler(async (req, res) => {
+  const { userId } = req.params;
+
+  const driver = await getPartnerByUserID(userId);
+
+  res
+    .status(StatusCodes.OK)
+    .json(ApiResponse("Successfully.", driver, StatusCodes.OK));
+});
+
+module.exports = { createPartner, delelePartner, getPartnerByUserId };

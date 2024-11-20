@@ -12,6 +12,8 @@ const {
   removeFile,
 } = require("../helpers/fileHelpers");
 
+const { getDriverByUserID } = require("../services/DriverServices");
+
 const createDriver = AsyncHandler(async (req, res) => {
   const { userId, licensePlate } = req.body;
 
@@ -128,4 +130,18 @@ const updateDateDriver = AsyncHandler(async (req, res) => {
     .json(ApiResponse("Driver updated successfully.", StatusCodes.OK));
 });
 
-module.exports = { createDriver, deleteDriver, updateDateDriver };
+const getDriverByUserId = AsyncHandler(async (req, res) => {
+  const { userId } = req.params;
+
+  const driver = await getDriverByUserID(userId);
+
+  res
+    .status(StatusCodes.OK)
+    .json(ApiResponse("Successfully.", driver, StatusCodes.OK));
+});
+module.exports = {
+  createDriver,
+  deleteDriver,
+  updateDateDriver,
+  getDriverByUserId,
+};
