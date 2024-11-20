@@ -1,15 +1,16 @@
 const AsyncHandler = require("express-async-handler");
 const Category = require("../models/Category");
-const Partner = require("../models/Partner");
+const UpdatetdPartner = require("../models/UpdatedPartner");
 const { StatusCodes } = require("http-status-codes");
 const ApiError = require("./error/ApiError");
 const ApiResponse = require("./response/ApiResponse");
-const mongoose = require("mongoose");
+
+const CategoryServices = require("../services/CategoryServices");
 
 const addCategory = AsyncHandler(async (req, res) => {
   const { partnerId, name } = req.body;
 
-  const partner = await Partner.findById(partnerId);
+  const partner = await UpdatetdPartner.findById(partnerId);
 
   if (!partner) {
     return res
@@ -47,7 +48,48 @@ const addCategory = AsyncHandler(async (req, res) => {
     .json(
       ApiResponse(
         "Category created successfully.",
-        { newCategory },
+        newCategory,
+        StatusCodes.CREATED
+      )
+    );
+});
+
+const updateCategory = AsyncHandler(async (req, res) => {
+  const { categoryId } = req.params; // Get the category ID from the URL
+  const { name } = req.body;
+
+  if (!name) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json(
+        ApiResponse(
+          "Category name is required",
+          null,
+          true,
+          StatusCodes.BAD_REQUEST
+        )
+      );
+  }
+
+  const updatedCategory = await Category.findByIdAndUpdate(
+    categoryId,
+    { name },
+    { new: true } // return the updated category
+  );
+
+  if (!updatedCategory) {
+    return res
+      .status(StatusCodes.NOT_FOUND)
+      .json(
+        ApiResponse("Category not found", null, true, StatusCodes.BAD_REQUEST)
+      );
+  }
+  return res
+    .status(StatusCodes.OK)
+    .json(
+      ApiResponse(
+        "Category updated successfully",
+        updatedCategory,
         StatusCodes.CREATED
       )
     );
@@ -56,46 +98,14 @@ const addCategory = AsyncHandler(async (req, res) => {
 const getCategoriesByPartnerId = AsyncHandler(async (req, res) => {
   const { partnerId } = req.params;
 
-  // Perform aggregation to retrieve the partner with categories ordered by categoryId
-  const partner = await Partner.aggregate([
-    {
-      $match: { _id: new mongoose.Types.ObjectId(partnerId) },
-    },
-    {
-      $unwind: "$categoryOrderIdx",
-    },
-    {
-      $lookup: {
-        from: "categories",
-        localField: "categoryOrderIdx",
-        foreignField: "_id",
-        as: "categoryDetails",
-      },
-    },
-    {
-      $unwind: "$categoryDetails",
-    },
-    {
-      $sort: {
-        "categoryOrderIdx.orderIndex": 1,
-      },
-    },
-    {
-      $group: {
-        _id: "$_id",
-        categories: { $push: "$categoryDetails" },
-      },
-    },
-  ]);
+  const partner = await CategoryServices.getCategories(partnerId);
 
-  // If no partner is found
   if (!partner || partner.length === 0) {
     return res
       .status(StatusCodes.NOT_FOUND)
       .json(ApiResponse("Partner not found", null, StatusCodes.NOT_FOUND));
   }
 
-  // Return the ordered categories
   res
     .status(StatusCodes.OK)
     .json(
@@ -110,10 +120,8 @@ const getCategoriesByPartnerId = AsyncHandler(async (req, res) => {
 const deleteCategory = AsyncHandler(async (req, res) => {
   const { id } = req.params;
 
-  //is category exists
   const category = await Category.findByIdAndDelete(id);
   if (!category) {
-    // If not found, throw error
     throw new ApiError("Category is not found");
   }
 
@@ -122,4 +130,20 @@ const deleteCategory = AsyncHandler(async (req, res) => {
     .json(ApiResponse("Category deleted successfully.", StatusCodes.OK));
 });
 
-module.exports = { addCategory, getCategoriesByPartnerId, deleteCategory };
+const deleteAllCategoriesOfPartner = AsyncHandler(async (req, res) => {
+  const { partnerId } = req.params;
+
+  await CategoryServices.deleteAllCategoriesOfPartner(partnerId);
+
+  res
+    .status(StatusCodes.OK)
+    .json(ApiResponse("Category deleted successfully.", StatusCodes.OK));
+});
+
+module.exports = {
+  addCategory,
+  getCategoriesByPartnerId,
+  deleteCategory,
+  deleteAllCategoriesOfPartner,
+  updateCategory,
+};
