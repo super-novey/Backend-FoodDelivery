@@ -28,5 +28,24 @@ const createPartner = async (
   });
 };
 
+const getPartnerByUserID = async (userId) => {
+  try {
+    const partner = await UpdatedPartner.findOne({ userId })
+      .populate({
+        path: "userId", // Reference to User model
+        model: "User", // Ensure the correct model is used for population
+      })
+      .exec();
 
-module.exports = { createPartner };
+    if (!partner) {
+      throw new Error("Partner not found for the given userId");
+    }
+    return partner;
+  } catch (error) {
+    console.error("Error fetching partner and user:", error);
+    throw error;
+  }
+};
+
+
+module.exports = { createPartner, getPartnerByUserID };

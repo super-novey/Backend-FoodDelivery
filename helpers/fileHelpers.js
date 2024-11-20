@@ -71,6 +71,8 @@ const removeFile = async (imgPath) => {
   }
 };
 
+
+
 module.exports = {
   returnSingleFilePath,
   returnMultipleFilePath,

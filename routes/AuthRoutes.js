@@ -6,6 +6,8 @@ const HandleBadRequest = require("../middlewares/HandleBadRequestMiddleware");
 const AuthRoutesValidations = require("./validators/AuthRoutes.validators");
 const upload = require("../config/multer");
 
+const fileUploader = require("../config/cloudinary.config");
+
 router.post(
   "/login",
   AuthRoutesValidations.loginValidation,
@@ -17,7 +19,7 @@ router.post("/register", AuthController.register);
 
 router.post(
   "/driverRegister",
-  upload.fields([
+  fileUploader.fields([
     { name: "profileUrl", maxCount: 1 },
     { name: "licenseFrontUrl", maxCount: 1 },
     { name: "licenseBackUrl", maxCount: 1 },
@@ -27,7 +29,7 @@ router.post(
 
 router.post(
   "/partnerRegister",
-  upload.fields([
+  fileUploader.fields([
     { name: "avatarUrl", maxCount: 1 },
     { name: "storeFront", maxCount: 1 },
     { name: "CCCDFrontUrl", maxCount: 1 },
@@ -38,5 +40,18 @@ router.post(
 
 router.post("/verifyOTP", AuthController.verifyOtp);
 router.post("/resendOTP", AuthController.resendOTP);
+
+// Test
+router.post(
+  "/cloudinary-upload",
+  fileUploader.single("file"),
+  (req, res, next) => {
+    if (!req.file) {
+      next(new Error("No file uploaded!"));
+      return;
+    }
+    res.json({ secure_url: req.file.path });
+  }
+);
 
 module.exports = router;

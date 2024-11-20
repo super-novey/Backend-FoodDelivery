@@ -24,19 +24,23 @@ const createDriver = async (
   });
 };
 
-const getDriverWithUserDetails = async (driverId) => {
+const getDriverByUserID = async (userId) => {
   try {
-    const driver = await UpdatedDriver.findById(driverId).populate("userId");
-    if (!driver) {
-      return null;
-    }
+    const driver = await UpdatedDriver.findOne({ userId })
+      .populate({
+        path: "userId", // Reference to User model
+        model: "User", // Ensure the correct model is used for population
+      })
+      .exec();
 
+    if (!driver) {
+      throw new Error("Driver not found for the given userId");
+    }
     return driver;
   } catch (error) {
-    throw new Error(
-      "Error fetching driver with user details: " + error.message
-    );
+    console.error("Error fetching driver and user:", error);
+    throw error;
   }
 };
 
-module.exports = { createDriver, getDriverWithUserDetails };
+module.exports = { createDriver, getDriverByUserID };

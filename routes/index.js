@@ -31,4 +31,5 @@ router.use("/partner", PartnerRoutes)
 router.use("/category", CategoryRoutes)
 router.use("/user", UserRoutes)
 
+
 module.exports = router;
