@@ -86,5 +86,37 @@ const approveUser = AsyncHandler(async (req, res) => {
   }
 });
 
+const updateUser = AsyncHandler(async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const updateData = req.body; 
 
-module.exports = { loadListUser, loadListUserByRoleAndStatus, approveUser };
+    if (!userId) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json(ApiResponse("User ID is required", null, StatusCodes.BAD_REQUEST));
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      updateData, 
+      { new: true, runValidators: true } 
+    );
+
+    if (!updatedUser) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json(ApiResponse("User not found", null, StatusCodes.NOT_FOUND));
+    }
+
+    res
+      .status(StatusCodes.OK)
+      .json(ApiResponse("User updated successfully", updatedUser, StatusCodes.OK));
+
+  } catch (error) {
+    console.error("Error updating user:", error); 
+    throw new ApiError("Failed to update user", StatusCodes.INTERNAL_SERVER_ERROR);
+  }
+});
+
+module.exports = { loadListUser, loadListUserByRoleAndStatus, approveUser, updateUser };
