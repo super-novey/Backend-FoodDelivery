@@ -22,6 +22,10 @@ const UserSchema = mongoose.Schema(
       enum: ["admin", "partner", "driver", "customer"],
       default: "customer",
     },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
     phone: {
       type: String,
     },
