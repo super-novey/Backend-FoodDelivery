@@ -64,6 +64,7 @@ const register = AsyncHandler(async (req, res) => {
     name: name,
     email: email,
     password: hashedPassword,
+    status: true,
     role: role,
     phone: phone,
     otp: otp,
@@ -118,7 +119,7 @@ const driverRegister = AsyncHandler(async (req, res) => {
   } = req.body;
 
   const role = "driver";
-  const userExists = await isUserExists(email, role);
+  const userExists = await isUserExists(email, role, false);
 
   if (userExists)
     return res
@@ -220,7 +221,7 @@ const partnerRegister = AsyncHandler(async (req, res) => {
   } = req.body;
 
   const role = "partner";
-  const userExists = await isUserExists(email, role);
+  const userExists = await isUserExists(email, role, false);
 
   if (userExists)
     return res
@@ -328,7 +329,12 @@ const login = AsyncHandler(async (req, res) => {
     });
   }
 
-  if (user.otp !== null || user.otpExpires !== null || !user.status) {
+  if (
+    user.otp !== null ||
+    user.otpExpires !== null ||
+    !user.status ||
+    user.isDeleted
+  ) {
     throw new ApiError("User is unauthorized!", StatusCodes.UNAUTHORIZED);
   }
 

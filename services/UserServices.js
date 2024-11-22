@@ -1,7 +1,7 @@
 const User = require("../models/User");
-const isUserExists = async (email, role) => {
-  const userExists = await User.findOne({ email, role });
- 
+const isUserExists = async (email, role, isDeleted) => {
+  const userExists = await User.findOne({ email, role, isDeleted });
+
   return userExists !== null;
 };
 
