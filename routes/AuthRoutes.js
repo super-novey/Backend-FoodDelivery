@@ -4,7 +4,6 @@ const router = express.Router();
 const AuthController = require("../controllers/AuthController");
 const HandleBadRequest = require("../middlewares/HandleBadRequestMiddleware");
 const AuthRoutesValidations = require("./validators/AuthRoutes.validators");
-const upload = require("../config/multer");
 
 const fileUploader = require("../config/cloudinary.config");
 

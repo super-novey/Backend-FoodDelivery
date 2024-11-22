@@ -327,9 +327,10 @@ const login = AsyncHandler(async (req, res) => {
       credentials: { email, password },
     });
   }
-  // if (user.otp !== null || user.otpExpires !== null) {
-  //   throw new ApiError("User is unauthorized!", StatusCodes.UNAUTHORIZED);
-  // }
+
+  if (user.otp !== null || user.otpExpires !== null || !user.status) {
+    throw new ApiError("User is unauthorized!", StatusCodes.UNAUTHORIZED);
+  }
 
   const responseData = {
     user,
