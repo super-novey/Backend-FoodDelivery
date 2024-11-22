@@ -24,4 +24,47 @@ const createUser = async (
     otpExpires: otpExpires,
   });
 };
-module.exports = { isUserExists, createUser };
+const findUsersByStatus = async (status, isDeleted) => {
+  return await User.find({ status, isDeleted });
+};
+
+const findUsersByRoleAndStatus = async (role, status) => {
+  const query = { status };
+
+  if (role && (role === 'driver' || role === 'partner')) {
+    query.role = role;
+  } else if (!role) {
+    query.role = { $in: ['driver', 'partner'] };
+  }
+
+  return await User.find(query);
+};
+
+const updateUserById = async (userId, updateData) => {
+  return await User.findByIdAndUpdate(userId, updateData, {
+    new: true,
+    runValidators: true,
+  });
+};
+
+const approveUserById = async (userId) => {
+  return await User.findByIdAndUpdate(
+    userId,
+    { status: true },
+    { new: true }
+  );
+};
+const deleteUser = async (userId) => {
+  return await User.findByIdAndUpdate(
+    userId,
+    { isDeleted: true },
+    { new: true }
+  );
+};
+
+module.exports = { isUserExists, createUser, findUsersByStatus,
+  findUsersByRoleAndStatus,
+  updateUserById,
+  approveUserById, 
+  deleteUser
+};
