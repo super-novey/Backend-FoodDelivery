@@ -338,6 +338,10 @@ const login = AsyncHandler(async (req, res) => {
     throw new ApiError("User is unauthorized!", StatusCodes.UNAUTHORIZED);
   }
 
+  if (!user.status || user.isDeleted) {
+    throw new ApiError("Pending...", StatusCodes.UNAUTHORIZED);
+  }
+
   const responseData = {
     user,
     token: generateToken(user._id),
