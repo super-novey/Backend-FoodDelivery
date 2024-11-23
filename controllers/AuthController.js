@@ -324,22 +324,44 @@ const login = AsyncHandler(async (req, res) => {
   const authenticate = user && (await bcrypt.compare(password, user.password));
 
   if (!authenticate) {
-    throw new ApiError("Invalid credentials!", StatusCodes.UNAUTHORIZED, {
-      credentials: { email, password },
-    });
+    res
+      .status(StatusCodes.UNAUTHORIZED)
+      .json(
+        ApiResponse(
+          "Tài khoản không tồn tại!",
+          null,
+          StatusCodes.UNAUTHORIZED,
+          true
+        )
+      );
   }
 
-  if (
-    user.otp !== null ||
-    user.otpExpires !== null ||
-    !user.status ||
-    user.isDeleted
-  ) {
-    throw new ApiError("User is unauthorized!", StatusCodes.UNAUTHORIZED);
+  if (user.otp !== null || user.otpExpires !== null) {
+    // throw new ApiError("User is unauthorized!", StatusCodes.UNAUTHORIZED);
+    res
+      .status(StatusCodes.UNAUTHORIZED)
+      .json(
+        ApiResponse(
+          "Tài khoản chưa xác thực",
+          null,
+          StatusCodes.UNAUTHORIZED,
+          true
+        )
+      );
   }
 
   if (!user.status || user.isDeleted) {
-    throw new ApiError("Pending...", StatusCodes.UNAUTHORIZED);
+    // throw new ApiError("Pending...", StatusCodes.UNAUTHORIZED);
+    res
+      .status(StatusCodes.UNAUTHORIZED)
+      .json(
+        ApiResponse(
+          "Hồ sơ đang chờ duyệt...",
+          null,
+          StatusCodes.UNAUTHORIZED,
+          true
+        )
+      );
   }
 
   const responseData = {
@@ -349,7 +371,7 @@ const login = AsyncHandler(async (req, res) => {
 
   res
     .status(StatusCodes.OK)
-    .json(ApiResponse("User logged in successfully.", responseData));
+    .json(ApiResponse("Đăng nhập thành công!", responseData));
 });
 
 const resendOTP = AsyncHandler(async (req, res) => {
