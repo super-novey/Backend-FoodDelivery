@@ -1,6 +1,6 @@
 const AsyncHandler = require("express-async-handler");
 const Category = require("../models/Category");
-const UpdatetdPartner = require("../models/UpdatedPartner");
+const UpdatetedPartner = require("../models/UpdatedPartner");
 const { StatusCodes } = require("http-status-codes");
 const ApiError = require("./error/ApiError");
 const ApiResponse = require("./response/ApiResponse");
@@ -10,7 +10,7 @@ const CategoryServices = require("../services/CategoryServices");
 const addCategory = AsyncHandler(async (req, res) => {
   const { partnerId, name } = req.body;
 
-  const partner = await UpdatetdPartner.findById(partnerId);
+  const partner = await UpdatetedPartner.findById(partnerId);
 
   if (!partner) {
     return res

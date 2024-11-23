@@ -32,7 +32,7 @@ const register = AsyncHandler(async (req, res) => {
   const { name, email, password, role, phone } = req.body;
 
   // is user exists
-  const userExists = await User.findOne({ email });
+  const userExists = await isUserExists(email, role);
 
   if (userExists) {
     throw new ApiError(
@@ -119,7 +119,7 @@ const driverRegister = AsyncHandler(async (req, res) => {
   } = req.body;
 
   const role = "driver";
-  const userExists = await isUserExists(email, role, false);
+  const userExists = await isUserExists(email, role);
 
   if (userExists)
     return res
@@ -317,10 +317,10 @@ const partnerRegister = AsyncHandler(async (req, res) => {
  * @access public
  */
 const login = AsyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, role } = req.body;
 
   // check for user email
-  const user = await User.findOne({ email });
+  const user = await isUserExists(email, role);
   const authenticate = user && (await bcrypt.compare(password, user.password));
 
   if (!authenticate) {
@@ -387,9 +387,9 @@ const resendOTP = AsyncHandler(async (req, res) => {
 });
 
 const verifyOtp = AsyncHandler(async (req, res) => {
-  const { email, otp } = req.body;
+  const { email, otp, role } = req.body;
 
-  const userExists = await User.findOne({ email });
+  const userExists = await isUserExists(email, role);
   if (!userExists)
     throw new ApiError("User not found!", StatusCodes.UNAUTHORIZED);
 
