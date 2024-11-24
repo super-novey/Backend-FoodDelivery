@@ -7,10 +7,11 @@ const {
   deleteCategory,
   deleteAllCategoriesOfPartner,
   updateCategory,
+  reorderCategoryIndex,
 } = require("../controllers/CategoryController");
-const AuthMiddleWare = require("../middlewares/AuthMiddleWare");
 
 router.post("/", addCategory);
+router.post("/reorder", reorderCategoryIndex);
 router.get("/:partnerId", getCategoriesByPartnerId);
 // router.delete("/:id", deleteAllCategoriesOfPartner);
 router.delete("/:id", deleteCategory);

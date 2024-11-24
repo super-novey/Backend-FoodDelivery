@@ -35,10 +35,16 @@ const register = AsyncHandler(async (req, res) => {
   const userExists = await isUserExists(email, role);
 
   if (userExists) {
-    throw new ApiError(
-      "User with provided Email address already exists",
-      StatusCodes.CONFLICT
-    );
+    return res
+      .status(StatusCodes.CONFLICT)
+      .json(
+        ApiResponse(
+          "Địa chỉ email đã được đăng ký",
+          null,
+          StatusCodes.CONFLICT,
+          true
+        )
+      );
   }
   // if (userExists) {
   //   return res
@@ -96,13 +102,7 @@ const register = AsyncHandler(async (req, res) => {
 
   res
     .status(StatusCodes.CREATED)
-    .json(
-      ApiResponse(
-        "User registered successfully.",
-        { user },
-        StatusCodes.CREATED
-      )
-    );
+    .json(ApiResponse("Đăng ký thành công", user, StatusCodes.CREATED));
 });
 
 const driverRegister = AsyncHandler(async (req, res) => {
