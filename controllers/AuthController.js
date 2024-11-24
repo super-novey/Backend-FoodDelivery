@@ -375,14 +375,35 @@ const login = AsyncHandler(async (req, res) => {
 });
 
 const resendOTP = AsyncHandler(async (req, res) => {
-  const { email } = req.body;
+  const { email, role } = req.body;
 
   // is user exists
-  const userExists = await User.findOne({ email });
+  const userExists = await isUserExists(email, role);
 
   if (!userExists) {
-    throw new ApiError("User not found!", StatusCodes.CONFLICT);
+    return res
+      .status(StatusCodes.UNAUTHORIZED)
+      .json(
+        ApiResponse(
+          "Địa chỉ email chưa được đăng ký!",
+          null,
+          StatusCodes.UNAUTHORIZED,
+          true
+        )
+      );
   }
+
+  if (userExists.otp == null || userExists.otpExpires == null)
+    return res
+      .status(StatusCodes.UNAUTHORIZED)
+      .json(
+        ApiResponse(
+          "Tài khoản đã được xác thực!",
+          null,
+          StatusCodes.UNAUTHORIZED,
+          true
+        )
+      );
 
   // Generate OTP
   const { otp, otpExpires } = generateOtp();
