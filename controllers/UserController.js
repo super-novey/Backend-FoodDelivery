@@ -120,11 +120,38 @@ const deleteUser = AsyncHandler(async (req, res) => {
     throw new ApiError("Failed to delete user", StatusCodes.INTERNAL_SERVER_ERROR);
   }
 });
+const deleteApprove = AsyncHandler(async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    if (!userId) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json(ApiResponse("User ID is required", null, StatusCodes.BAD_REQUEST));
+    }
+
+    const deletedUser = await userService.deleteApprove(userId);
+
+    if (!deletedUser) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json(ApiResponse("User not found", null, StatusCodes.NOT_FOUND));
+    }
+
+    res
+      .status(StatusCodes.OK)
+      .json(ApiResponse("User delete successfully", deletedUser, StatusCodes.OK));
+  } catch (error) {
+    console.error("Failed to delete user:", error);
+    throw new ApiError("Failed to delete user", StatusCodes.INTERNAL_SERVER_ERROR);
+  }
+});
 
 module.exports = {
   loadListUser,
   loadListUserByRoleAndStatus,
   approveUser,
   updateUser,
-  deleteUser
+  deleteUser,
+  deleteApprove
 };
