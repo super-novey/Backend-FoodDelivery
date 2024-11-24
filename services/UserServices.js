@@ -64,10 +64,25 @@ const deleteUser = async (userId) => {
     { new: true }
   );
 };
+const deleteApprove = async (userId) => {
+  try {
+    const user = await User.findByIdAndDelete(userId);
+
+    if (!user) {
+      return null;
+    }
+
+    return user;
+  } catch (error) {
+    console.error("Lỗi khi xóa người dùng:", error);
+    throw new Error("Có lỗi xảy ra khi xóa người dùng");
+  }
+};
 
 module.exports = { isUserExists, createUser, findUsersByStatus,
   findUsersByRoleAndStatus,
   updateUserById,
   approveUserById, 
-  deleteUser
+  deleteUser,
+  deleteApprove
 };
