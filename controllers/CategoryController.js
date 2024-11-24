@@ -54,6 +54,53 @@ const addCategory = AsyncHandler(async (req, res) => {
     );
 });
 
+const reorderCategoryIndex = AsyncHandler(async (req, res) => {
+  const { partnerId, categoryOrderIdx } = req.body;
+
+  // Validate partnerId and categoryOrderIdx
+  if (!partnerId || !Array.isArray(categoryOrderIdx)) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json(
+        ApiResponse(
+          "Invalid partnerId or categoryOrderIdx",
+          null,
+          StatusCodes.BAD_REQUEST,
+          true
+        )
+      );
+  }
+
+  // Find the partner
+  const partner = await UpdatetedPartner.findById(partnerId);
+
+  if (!partner) {
+    return res
+      .status(StatusCodes.NOT_FOUND)
+      .json(
+        ApiResponse("Partner is not found", null, StatusCodes.NOT_FOUND, true)
+      );
+  }
+
+  // Update the categoryOrderIdx
+  partner.categoryOrderIdx = categoryOrderIdx;
+
+  // Save the updated partner
+  await partner.save();
+
+  // Respond with the updated partner
+  res
+    .status(StatusCodes.OK)
+    .json(
+      ApiResponse(
+        "Category order updated successfully.",
+        partner,
+        StatusCodes.OK,
+        false
+      )
+    );
+});
+
 const updateCategory = AsyncHandler(async (req, res) => {
   const { categoryId } = req.params; // Get the category ID from the URL
   const { name } = req.body;
@@ -146,4 +193,5 @@ module.exports = {
   deleteCategory,
   deleteAllCategoriesOfPartner,
   updateCategory,
+  reorderCategoryIndex,
 };
