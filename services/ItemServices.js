@@ -23,7 +23,8 @@ const createNewItem = async (
   price,
   description,
   status,
-  itemImage
+  itemImage,
+  partnerId
 ) => {
   return await Item.create({
     categoryId: categoryId,
@@ -32,6 +33,7 @@ const createNewItem = async (
     description: description,
     status: status,
     itemImage: itemImage,
+    partnerId: partnerId,
   });
 };
 

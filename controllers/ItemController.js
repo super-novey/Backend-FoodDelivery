@@ -4,16 +4,19 @@ const ApiError = require("./error/ApiError");
 const ApiResponse = require("./response/ApiResponse");
 const ItemServices = require("../services/ItemServices");
 const Category = require("../models/Category");
+const Partner = require("../models/UpdatedPartner");
 
 const addItemToCategory = AsyncHandler(async (req, res) => {
-  const { categoryId, itemName, price, description, status } = req.body;
+  const { categoryId, itemName, price, description, status, partnerId } =
+    req.body;
 
   const category = await Category.findById(categoryId);
+  const partner = await Partner.findById(partnerId);
 
-  if (!category) {
+  if (!category || !partner) {
     return res
       .status(StatusCodes.NOT_FOUND)
-      .json(ApiResponse("Category is not found", null, StatusCodes.NOT_FOUND));
+      .json(ApiResponse("Category or Partner is not found", null, StatusCodes.NOT_FOUND));
   }
 
   let itemImage = "";
@@ -28,7 +31,8 @@ const addItemToCategory = AsyncHandler(async (req, res) => {
     price,
     description,
     status,
-    itemImage
+    itemImage,
+    partnerId
   );
 
   res

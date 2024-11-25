@@ -6,6 +6,10 @@ const ItemSchema = Schema({
     type: Schema.Types.ObjectId,
     ref: "Category",
   },
+  partnerId: {
+    type: Schema.Types.ObjectId,
+    ref: "UpdatedPartner",
+  },
 
   itemName: {
     type: String,
