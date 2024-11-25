@@ -16,7 +16,13 @@ const addItemToCategory = AsyncHandler(async (req, res) => {
   if (!category || !partner) {
     return res
       .status(StatusCodes.NOT_FOUND)
-      .json(ApiResponse("Category or Partner is not found", null, StatusCodes.NOT_FOUND));
+      .json(
+        ApiResponse(
+          "Category or Partner is not found",
+          null,
+          StatusCodes.NOT_FOUND
+        )
+      );
   }
 
   let itemImage = "";
@@ -40,6 +46,25 @@ const addItemToCategory = AsyncHandler(async (req, res) => {
     .json(
       ApiResponse("Item created successfully.", newItem, StatusCodes.CREATED)
     );
+});
+
+const deleteItem = AsyncHandler(async (req, res) => {
+  const { id } = req.params;
+  try {
+    const deletedItem = await ItemServices.deleteItem(id);
+    if (!deletedItem) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json(ApiResponse("Item not found", null, StatusCodes.NOT_FOUND));
+    }
+    res
+      .status(StatusCodes.OK)
+      .json(
+        ApiResponse("Item deleted successfully", deleteItem, StatusCodes.OK)
+      );
+  } catch (e) {
+    throw new ApiError(e);
+  }
 });
 
 const getItemById = AsyncHandler(async (req, res) => {
@@ -98,4 +123,5 @@ module.exports = {
   addItemToCategory,
   getItemById,
   getItemsByCategory,
+  deleteItem,
 };

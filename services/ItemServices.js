@@ -1,3 +1,4 @@
+const ApiError = require("../controllers/error/ApiError");
 const Item = require("../models/Item");
 
 const getItemsByCategoryId = async (categoryId) => {
@@ -37,6 +38,18 @@ const createNewItem = async (
   });
 };
 
+const deleteItem = async (id) => {
+  try {
+    const deletedItem = await Item.findByIdAndDelete(id);
+    if (!deletedItem) {
+      return null;
+    }
+    return deletedItem;
+  } catch (e) {
+    throw new Error(e);
+  }
+};
+
 const getItemById = async (itemId) => {
   try {
     const item = await Item.findById(itemId);
@@ -54,4 +67,9 @@ const getItemById = async (itemId) => {
   }
 };
 
-module.exports = { getItemsByCategoryId, createNewItem, getItemById };
+module.exports = {
+  getItemsByCategoryId,
+  createNewItem,
+  getItemById,
+  deleteItem,
+};

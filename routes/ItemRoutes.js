@@ -11,5 +11,6 @@ router.post(
 
 router.get("/:itemId", ItemController.getItemById);
 router.get("/category/:categoryId", ItemController.getItemsByCategory);
+router.delete("/:id", ItemController.deleteItem);
 
 module.exports = router;
