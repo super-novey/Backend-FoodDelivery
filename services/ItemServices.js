@@ -38,6 +38,40 @@ const createNewItem = async (
   });
 };
 
+const updateItem = async (
+  itemId,
+  categoryId,
+  itemName,
+  price,
+  description,
+  status,
+  itemImage
+) => {
+  try {
+    const updatedItem = await Item.findByIdAndUpdate(
+      itemId,
+      {
+        categoryId: categoryId,
+        itemName: itemName,
+        price: price,
+        description: description,
+        status: status,
+        itemImage: itemImage,
+      },
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedItem) {
+      throw new Error("Item not found or update failed");
+    }
+
+    return updatedItem;
+  } catch (error) {
+    console.error("Error updating item:", error.message);
+    throw error;
+  }
+};
+
 const deleteItem = async (id) => {
   try {
     const deletedItem = await Item.findByIdAndDelete(id);
@@ -72,4 +106,5 @@ module.exports = {
   createNewItem,
   getItemById,
   deleteItem,
+  updateItem,
 };

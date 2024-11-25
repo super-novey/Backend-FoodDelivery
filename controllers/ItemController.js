@@ -5,6 +5,7 @@ const ApiResponse = require("./response/ApiResponse");
 const ItemServices = require("../services/ItemServices");
 const Category = require("../models/Category");
 const Partner = require("../models/UpdatedPartner");
+const Item = require("../models/Item");
 
 const addItemToCategory = AsyncHandler(async (req, res) => {
   const { categoryId, itemName, price, description, status, partnerId } =
@@ -46,6 +47,63 @@ const addItemToCategory = AsyncHandler(async (req, res) => {
     .json(
       ApiResponse("Item created successfully.", newItem, StatusCodes.CREATED)
     );
+});
+
+const updateItemInCategory = AsyncHandler(async (req, res) => {
+  const { itemId } = req.params;
+  const { categoryId, itemName, price, description, status } =
+    req.body;
+
+  const item = await Item.findById(itemId);
+  const category = categoryId ? await Category.findById(categoryId) : null;
+  
+
+  if (!item) {
+    return res
+      .status(StatusCodes.NOT_FOUND)
+      .json(ApiResponse("Item not found", null, StatusCodes.NOT_FOUND));
+  }
+
+  if (categoryId && !category) {
+    return res
+      .status(StatusCodes.NOT_FOUND)
+      .json(ApiResponse("Category not found", null, StatusCodes.NOT_FOUND));
+  }
+
+  
+
+  let itemImage = item.itemImage;
+  if (req.files && req.files.itemImage) {
+    itemImage = req.files.itemImage[0].path;
+  }
+
+  try {
+    const updatedItem = await ItemServices.updateItem(
+      itemId,
+      categoryId || item.categoryId,
+      itemName || item.itemName,
+      price || item.price,
+      description || item.description,
+      status !== undefined ? status : item.status,
+      itemImage,
+    );
+
+    res
+      .status(StatusCodes.OK)
+      .json(
+        ApiResponse("Item updated successfully.", updatedItem, StatusCodes.OK)
+      );
+  } catch (error) {
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json(
+        ApiResponse(
+          "Failed to update item.",
+          null,
+          StatusCodes.INTERNAL_SERVER_ERROR
+        )
+      );
+  }
 });
 
 const deleteItem = AsyncHandler(async (req, res) => {
@@ -124,4 +182,5 @@ module.exports = {
   getItemById,
   getItemsByCategory,
   deleteItem,
+  updateItemInCategory,
 };
