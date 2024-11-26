@@ -73,9 +73,43 @@ const getOrdersByCustomerId = AsyncHandler(async (req, res) => {
   }
 });
 
+const getOrdersByStatus = AsyncHandler(async (req, res) => {
+  const { status } = req.query; 
+
+  try {
+    const orders = await OrderService.getOrdersByStatus(status);
+
+    res.status(StatusCodes.OK).json(
+      ApiResponse(`Orders with status "${status}" retrieved successfully`, orders, StatusCodes.OK)
+    );
+  } catch (error) {
+    res.status(StatusCodes.NOT_FOUND).json(
+      ApiResponse("No orders found with the specified status", null, StatusCodes.NOT_FOUND)
+    );
+  }
+});
+
+const getAllOrders = AsyncHandler(async (req, res) => {
+  try {
+    const orders = await OrderService.getAllOrders(); 
+    res.status(StatusCodes.OK).json(
+      ApiResponse(`Fetch orders retrieved successfully`, orders, StatusCodes.OK)
+    );
+  } catch (error) {
+    res.status(StatusCodes.NOT_FOUND).json(
+      ApiResponse("No orders found.", null, StatusCodes.NOT_FOUND)
+    );
+  }
+});
+
+
+
 module.exports = {
   createOrder,
   updateOrder,
   getOrderDetails,
   getOrdersByCustomerId,
+  getOrdersByStatus, 
+  getAllOrders,
 };
+

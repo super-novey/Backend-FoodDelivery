@@ -1,75 +1,65 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
+const { OrderItemSchema } = require("./OrderItem.js"); 
 
 const OrderSchema = new Schema({
-  customer_id: {
+  customerId: {
     type: Schema.Types.ObjectId,
-    ref: "Customer", 
+    ref: "Customer",
     required: true,
   },
-
-  driver_status: {
-    type: String, 
-    default: null, 
+  driverStatus: {
+    type: String,
+    default: null,
   },
-
-  restaurant_id: {
+  restaurantId: {
     type: Schema.Types.ObjectId,
-    ref: "Partner", 
-    default: null, 
+    ref: "Partner",
+    default: null,
   },
-
-  assigned_shipper_id: {
+  assignedShipperId: {
     type: Schema.Types.ObjectId,
-    ref: "Driver", 
-    default: null, 
+    ref: "Driver",
+    default: null,
   },
-
-  cust_shipper_rating: {
-    type: Number, 
-    min: 1,
-    max: 5,
-    default: null, 
-  },
-
-  delivery_fee: {
+  custShipperRating: {
     type: Number,
-    required: true, 
-  },
-
-  order_datetime: {
-    type: Date,
-    default: Date.now, 
-  },
-
-  note: {
-    type: String, 
-    default: "",
-  },
-
-  cust_res_rating: {
-    type: Number, 
     min: 1,
     max: 5,
-    default: null, 
+    default: null,
   },
-
-  reason: {
-    type: String, 
+  deliveryFee: {
+    type: Number,
+    required: true,
+  },
+  orderDatetime: {
+    type: Date,
+    default: Date.now,
+  },
+  note: {
+    type: String,
     default: "",
   },
-
-  cust_status: {
-      type: String, 
-    default: null, 
+  custResRating: {
+    type: Number,
+    min: 1,
+    max: 5,
+    default: null,
   },
-
-  partner_status: {
-      type: String, 
-    default: null, 
-      
+  reason: {
+    type: String,
+    default: "",
   },
+  custStatus: {
+    type: String,
+    enum: ["new", "accepted", "processing", "delivered", "cancelled"],
+    default: "new",
+  },
+  partnerStatus: {
+    type: String,
+    default: null,
+  },
+  orderItems: [OrderItemSchema], 
 });
-
 
 module.exports = mongoose.model("Order", OrderSchema);

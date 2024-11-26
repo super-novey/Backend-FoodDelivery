@@ -1,4 +1,5 @@
 const Order = require("../models/Order");
+const mongoose = require('mongoose');
 const { StatusCodes } = require("http-status-codes");
 
 const createOrder = async (orderData) => {
@@ -31,9 +32,16 @@ const updateOrder = async (orderId, orderUpdates) => {
   }
 };
 
+
+
 const getOrderDetails = async (orderId) => {
   try {
-    const order = await Order.findById(orderId).populate('customer_id restaurant_id assigned_shipper_id');
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+      throw new Error("Invalid order ID format");
+    }
+
+    const order = await Order.findById(orderId)
+      .populate('customer_id restaurant_id assigned_shipper_id');
 
     if (!order) {
       throw new Error("Order not found");
@@ -45,6 +53,7 @@ const getOrderDetails = async (orderId) => {
     throw error;
   }
 };
+
 
 const getOrdersByCustomerId = async (customerId) => {
   try {
@@ -61,9 +70,38 @@ const getOrdersByCustomerId = async (customerId) => {
   }
 };
 
+const getOrdersByStatus = async (status) => {
+  try {
+    const orders = await Order.find({ status });
+
+    if (!orders || orders.length === 0) {
+      throw new Error("No orders found with the specified status");
+    }
+
+    return orders;
+  } catch (error) {
+    console.error("Error fetching orders by status:", error.message);
+    throw error;
+  }
+};
+
+const getAllOrders = async () => {
+  try {
+    const orders = await Order.find();
+    return orders;
+  } catch (error) {
+    console.error("Error fetching all orders:", error.message);
+    throw error;
+  }
+};
+
 module.exports = {
   createOrder,
   updateOrder,
   getOrderDetails,
-  getOrdersByCustomerId
+  getOrdersByCustomerId,
+  getOrdersByStatus,
+  getAllOrders, 
 };
+
+
