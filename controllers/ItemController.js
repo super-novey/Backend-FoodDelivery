@@ -28,7 +28,7 @@ const addItemToCategory = AsyncHandler(async (req, res) => {
 
   let itemImage = "";
 
-  if (req.files) {
+  if (req.files && req.files.itemImage && req.files.itemImage.length > 0) {
     itemImage = req.files.itemImage[0].path;
   }
 
@@ -51,12 +51,10 @@ const addItemToCategory = AsyncHandler(async (req, res) => {
 
 const updateItemInCategory = AsyncHandler(async (req, res) => {
   const { itemId } = req.params;
-  const { categoryId, itemName, price, description, status } =
-    req.body;
+  const { categoryId, itemName, price, description, status } = req.body;
 
   const item = await Item.findById(itemId);
   const category = categoryId ? await Category.findById(categoryId) : null;
-  
 
   if (!item) {
     return res
@@ -70,10 +68,8 @@ const updateItemInCategory = AsyncHandler(async (req, res) => {
       .json(ApiResponse("Category not found", null, StatusCodes.NOT_FOUND));
   }
 
-  
-
   let itemImage = item.itemImage;
-  if (req.files && req.files.itemImage) {
+  if (req.files && req.files.itemImage && req.files.itemImage.length > 0) {
     itemImage = req.files.itemImage[0].path;
   }
 
@@ -85,7 +81,7 @@ const updateItemInCategory = AsyncHandler(async (req, res) => {
       price || item.price,
       description || item.description,
       status !== undefined ? status : item.status,
-      itemImage,
+      itemImage
     );
 
     res
