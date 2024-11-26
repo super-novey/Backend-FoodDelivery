@@ -6,10 +6,15 @@ const ItemServices = require("../services/ItemServices");
 const Category = require("../models/Category");
 const Partner = require("../models/UpdatedPartner");
 const Item = require("../models/Item");
-
+const removeVietnameseTones = (str) => {
+  return str
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D");
+};
 const addItemToCategory = AsyncHandler(async (req, res) => {
-  const { categoryId, itemName, price, description, status, partnerId } =
-    req.body;
+  const { categoryId, itemName, price, description, status, partnerId } = req.body;
 
   const category = await Category.findById(categoryId);
   const partner = await Partner.findById(partnerId);
@@ -17,13 +22,7 @@ const addItemToCategory = AsyncHandler(async (req, res) => {
   if (!category || !partner) {
     return res
       .status(StatusCodes.NOT_FOUND)
-      .json(
-        ApiResponse(
-          "Category or Partner is not found",
-          null,
-          StatusCodes.NOT_FOUND
-        )
-      );
+      .json(ApiResponse("Category or Partner is not found", null, StatusCodes.NOT_FOUND));
   }
 
   let itemImage = "";
@@ -39,21 +38,21 @@ const addItemToCategory = AsyncHandler(async (req, res) => {
     description,
     status,
     itemImage,
-    partnerId
+    partnerId,
+    removeVietnameseTones(itemName) 
   );
 
   res
     .status(StatusCodes.CREATED)
-    .json(
-      ApiResponse("Item created successfully.", newItem, StatusCodes.CREATED)
-    );
+    .json(ApiResponse("Item created successfully.", newItem, StatusCodes.CREATED));
 });
+
 
 const updateItemInCategory = AsyncHandler(async (req, res) => {
   const { itemId } = req.params;
   const { categoryId, itemName, price, description, status } = req.body;
 
-  const item = await Item.findById(itemId);
+  const item = await ItemServices.getItemById(itemId);
   const category = categoryId ? await Category.findById(categoryId) : null;
 
   if (!item) {
@@ -81,26 +80,20 @@ const updateItemInCategory = AsyncHandler(async (req, res) => {
       price || item.price,
       description || item.description,
       status !== undefined ? status : item.status,
-      itemImage
+      itemImage,
+      itemName ? removeVietnameseTones(itemName) : item.normalizedItemName // Cập nhật tên không dấu
     );
 
     res
       .status(StatusCodes.OK)
-      .json(
-        ApiResponse("Item updated successfully.", updatedItem, StatusCodes.OK)
-      );
+      .json(ApiResponse("Item updated successfully.", updatedItem, StatusCodes.OK));
   } catch (error) {
     res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json(
-        ApiResponse(
-          "Failed to update item.",
-          null,
-          StatusCodes.INTERNAL_SERVER_ERROR
-        )
-      );
+      .json(ApiResponse("Failed to update item.", null, StatusCodes.INTERNAL_SERVER_ERROR));
   }
 });
+
 
 const deleteItem = AsyncHandler(async (req, res) => {
   const { id } = req.params;
@@ -172,6 +165,39 @@ const getItemsByCategory = AsyncHandler(async (req, res) => {
     throw new Error("Failed to retrieve items.");
   }
 });
+const searchItemsByName = AsyncHandler(async (req, res) => {
+  const { query } = req.query; 
+
+  if (!query) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json(ApiResponse("Query parameter is required", null, StatusCodes.BAD_REQUEST));
+  }
+
+  try {
+    const normalizedQuery = removeVietnameseTones(query);
+
+    const items = await Item.find({
+      $or: [
+        { itemName: { $regex: query, $options: "i" } }, 
+        { normalizedItemName: { $regex: normalizedQuery, $options: "i" } } 
+      ]
+    });
+
+    if (items.length === 0) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json(ApiResponse("No items match your search.", [], StatusCodes.NOT_FOUND));
+    }
+
+    res
+      .status(StatusCodes.OK)
+      .json(ApiResponse("Search results retrieved successfully.", items, StatusCodes.OK));
+  } catch (error) {
+    console.error("Error searching items:", error.message);
+    throw new ApiError("Failed to retrieve search results.");
+  }
+});
 
 module.exports = {
   addItemToCategory,
@@ -179,4 +205,5 @@ module.exports = {
   getItemsByCategory,
   deleteItem,
   updateItemInCategory,
+  searchItemsByName
 };
