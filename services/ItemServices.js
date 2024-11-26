@@ -1,6 +1,12 @@
 const ApiError = require("../controllers/error/ApiError");
 const Item = require("../models/Item");
-
+const removeVietnameseTones = (str) => {
+  return str
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D");
+};
 const getItemsByCategoryId = async (categoryId) => {
   try {
     const items = await Item.find({ categoryId: categoryId });
@@ -25,16 +31,18 @@ const createNewItem = async (
   description,
   status,
   itemImage,
-  partnerId
+  partnerId,
+  normalizedItemName
 ) => {
   return await Item.create({
-    categoryId: categoryId,
-    itemName: itemName,
-    price: price,
-    description: description,
-    status: status,
-    itemImage: itemImage,
-    partnerId: partnerId,
+    categoryId,
+    itemName,
+    price,
+    description,
+    status,
+    itemImage,
+    partnerId,
+    normalizedItemName, // Lưu tên không dấu
   });
 };
 
@@ -45,20 +53,22 @@ const updateItem = async (
   price,
   description,
   status,
-  itemImage
+  itemImage,
+  normalizedItemName
 ) => {
   try {
     const updatedItem = await Item.findByIdAndUpdate(
       itemId,
       {
-        categoryId: categoryId,
-        itemName: itemName,
-        price: price,
-        description: description,
-        status: status,
-        itemImage: itemImage,
+        categoryId,
+        itemName,
+        price,
+        description,
+        status,
+        itemImage,
+        normalizedItemName, // Cập nhật tên không dấu
       },
-      { new: true } // Return the updated document
+      { new: true }
     );
 
     if (!updatedItem) {
@@ -100,6 +110,20 @@ const getItemById = async (itemId) => {
     throw error;
   }
 };
+const searchItemsByName = async (query) => {
+  try {
+    const normalizedQuery = removeVietnameseTones(query); 
+
+    const items = await Item.find({
+      normalizedItemName: { $regex: normalizedQuery, $options: "i" }, 
+    });
+
+    return items;
+  } catch (error) {
+    console.error("Error searching items by name:", error.message);
+    throw new Error(error);
+  }
+};
 
 module.exports = {
   getItemsByCategoryId,
@@ -107,4 +131,5 @@ module.exports = {
   getItemById,
   deleteItem,
   updateItem,
+  searchItemsByName
 };

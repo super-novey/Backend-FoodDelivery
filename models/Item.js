@@ -30,6 +30,9 @@ const ItemSchema = Schema({
   itemImage: {
     type: String,
   },
+  normalizedItemName: {
+    type: String,
+  }
 });
 
 module.exports = mongoose.model("Item", ItemSchema);
