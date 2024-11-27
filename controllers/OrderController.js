@@ -74,20 +74,65 @@ const getOrdersByCustomerId = AsyncHandler(async (req, res) => {
 });
 
 const getOrdersByStatus = AsyncHandler(async (req, res) => {
-  const { status } = req.query; 
+  const { status } = req.query;
 
   try {
+    // Fetch orders by status using the service
     const orders = await OrderService.getOrdersByStatus(status);
 
+    // Check if orders exist
+    if (!orders || orders.length === 0) {
+      return res.status(StatusCodes.NOT_FOUND).json(
+        ApiResponse("No orders found with the specified status", null, StatusCodes.NOT_FOUND)
+      );
+    }
+
+    // Map orders to include all fields
+    const orderDetails = orders.map((order) => ({
+      id: order._id,
+      // customerId: order.customerId ? order.customerId : "Unknown",
+      customerName: order.customerId && order.customerId.name ? order.customerId.name : "Unknown",
+      // restaurantId: order.restaurantId ? order.restaurantId : "Unknown",
+      restaurantName: order.restaurantId && order.restaurantId.userId
+        ? order.restaurantId.userId.name
+        : "Unknown",
+      assignedShipperId: order.assignedShipperId ? order.assignedShipperId : null,
+      custShipperRating: order.custShipperRating,
+      custResRating: order.custResRating,
+      deliveryFee: order.deliveryFee,
+      orderDatetime: order.orderDatetime,
+      note: order.note,
+      reason: order.reason || "",
+      status: order.custStatus,
+      driverStatus: order.driverStatus,
+      partnerStatus: order.partnerStatus,
+      orderItems: order.orderItems.map((item) => ({
+        itemId: item.itemId,
+        quantity: item.quantity,
+        price: item.price,
+        totalPrice: item.totalPrice,
+        id: item._id,
+      })),
+    }));
+
+    // Respond with the formatted order details
     res.status(StatusCodes.OK).json(
-      ApiResponse(`Orders with status "${status}" retrieved successfully`, orders, StatusCodes.OK)
+      ApiResponse(
+        `Orders with status "${status}" retrieved successfully`,
+        orderDetails,
+        StatusCodes.OK
+      )
     );
   } catch (error) {
-    res.status(StatusCodes.NOT_FOUND).json(
-      ApiResponse("No orders found with the specified status", null, StatusCodes.NOT_FOUND)
+    console.error("Error fetching orders by status:", error);
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(
+      ApiResponse("An error occurred while fetching orders", null, StatusCodes.INTERNAL_SERVER_ERROR)
     );
   }
 });
+
+
+
 
 const getAllOrders = AsyncHandler(async (req, res) => {
   try {
