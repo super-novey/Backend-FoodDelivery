@@ -108,7 +108,8 @@ const getOrdersByStatus = AsyncHandler(async (req, res) => {
       driverStatus: order.driverStatus,
       partnerStatus: order.partnerStatus,
       orderItems: order.orderItems.map((item) => ({
-        itemId: item.itemId,
+        // itemId: item.itemId,
+        itemName: item.itemId ? item.itemId.itemName : "Unknown",
         quantity: item.quantity,
         price: item.price,
         totalPrice: item.totalPrice,
