@@ -1,5 +1,5 @@
 const UpdatedPartner = require("../models/UpdatedPartner");
-
+const mongoose = require('mongoose');
 const createPartner = async (
   userId,
   description,
@@ -46,6 +46,26 @@ const getPartnerByUserID = async (userId) => {
     throw error;
   }
 };
+const getDetailPartnerByPartnerId = async (id) => {
+  try {
+    const objectId = new mongoose.Types.ObjectId(id.trim());
+
+    const partner = await UpdatedPartner.findById(objectId)
+      .populate('userId', 'name phone') 
+      .exec();
+
+    if (!partner) {
+      throw new Error('Không tìm thấy partner với ID cung cấp');
+    }
+
+    partner.categoryOrderIdx = undefined;
+
+    return partner;
+  } catch (error) {
+    throw new Error(`Lỗi khi lấy partner: ${error.message}`);
+  }
+};
 
 
-module.exports = { createPartner, getPartnerByUserID };
+
+module.exports = { createPartner, getPartnerByUserID, getDetailPartnerByPartnerId };

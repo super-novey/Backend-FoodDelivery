@@ -13,7 +13,7 @@ const {
   removeFile,
 } = require("../helpers/fileHelpers");
 const Partner = require("../models/Partner");
-const { getPartnerByUserID } = require("../services/PartnerServices");
+const { getPartnerByUserID, getDetailPartnerByPartnerId } = require("../services/PartnerServices");
 
 const createPartner = AsyncHandler(async (req, res) => {
   const { userId, description } = req.body;
@@ -140,5 +140,24 @@ const getPartnerByUserId = AsyncHandler(async (req, res) => {
     .status(StatusCodes.OK)
     .json(ApiResponse("Successfully.", driver, StatusCodes.OK));
 });
+const getPartnerByPartnerId = async (req, res) => {
+  try {
+    const { id } = req.params; 
 
-module.exports = { createPartner, delelePartner, getPartnerByUserId, getPartnerById };
+    const partner = await getDetailPartnerByPartnerId(id);
+    
+
+    res.status(200).json({
+      success: true,
+      message: 'Partner fetched successfully',
+      data: partner, 
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Partner error occurred',
+    });
+  }
+};
+module.exports = { createPartner, delelePartner, getPartnerByUserId, getPartnerById, getPartnerByPartnerId };
