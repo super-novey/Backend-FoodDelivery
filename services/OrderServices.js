@@ -76,7 +76,7 @@ const getOrdersByStatus = async (status) => {
       .populate({ path: "customerId", select: "name" })
       .populate({
         path: "restaurantId",
-        populate: { path: "userId", select: "name" },
+        populate: { path: "userId", select: "name detailAddress" },
       });
 
     if (!orders || orders.length === 0) {

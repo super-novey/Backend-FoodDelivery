@@ -77,17 +77,14 @@ const getOrdersByStatus = AsyncHandler(async (req, res) => {
   const { status } = req.query;
 
   try {
-    // Fetch orders by status using the service
     const orders = await OrderService.getOrdersByStatus(status);
 
-    // Check if orders exist
     if (!orders || orders.length === 0) {
       return res.status(StatusCodes.NOT_FOUND).json(
         ApiResponse("No orders found with the specified status", null, StatusCodes.NOT_FOUND)
       );
     }
 
-    // Map orders to include all fields
     const orderDetails = orders.map((order) => ({
       id: order._id,
       // customerId: order.customerId ? order.customerId : "Unknown",
@@ -96,6 +93,10 @@ const getOrdersByStatus = AsyncHandler(async (req, res) => {
       restaurantName: order.restaurantId && order.restaurantId.userId
         ? order.restaurantId.userId.name
         : "Unknown",
+      restDetailAddress: order.restaurantId?.detailAddress || "Unknown",
+      restProvinceId: order.restaurantId?.provinceId || "Unknown", 
+      restDistrictId: order.restaurantId?.districtId || "Unknown",  
+      restCommuneId: order.restaurantId?.communeId || "Unknown", 
       assignedShipperId: order.assignedShipperId ? order.assignedShipperId : null,
       custShipperRating: order.custShipperRating,
       custResRating: order.custResRating,
@@ -115,7 +116,6 @@ const getOrdersByStatus = AsyncHandler(async (req, res) => {
       })),
     }));
 
-    // Respond with the formatted order details
     res.status(StatusCodes.OK).json(
       ApiResponse(
         `Orders with status "${status}" retrieved successfully`,
