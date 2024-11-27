@@ -5,7 +5,7 @@ const { OrderItemSchema } = require("./OrderItem.js");
 const OrderSchema = new Schema({
   customerId: {
     type: Schema.Types.ObjectId,
-    ref: "Customer",
+    ref: "User",
     required: true,
   },
   driverStatus: {
@@ -14,12 +14,12 @@ const OrderSchema = new Schema({
   },
   restaurantId: {
     type: Schema.Types.ObjectId,
-    ref: "Partner",
+    ref: "UpdatedPartner",
     default: null,
   },
   assignedShipperId: {
     type: Schema.Types.ObjectId,
-    ref: "Driver",
+    ref: "UpdateDriver",
     default: null,
   },
   custShipperRating: {

@@ -72,7 +72,12 @@ const getOrdersByCustomerId = async (customerId) => {
 
 const getOrdersByStatus = async (status) => {
   try {
-    const orders = await Order.find({ status });
+    const orders = await Order.find({ status })
+      .populate({ path: "customerId", select: "name" })
+      .populate({
+        path: "restaurantId",
+        populate: { path: "userId", select: "name" },
+      });
 
     if (!orders || orders.length === 0) {
       throw new Error("No orders found with the specified status");
