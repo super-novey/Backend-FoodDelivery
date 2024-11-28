@@ -21,6 +21,24 @@ const createOrder = AsyncHandler(async (req, res) => {
   }
 });
 
+const updateOrderStatus = AsyncHandler(async (req, res) => {
+  const { orderId } = req.params;
+  const statusUpdates = req.body; // Expect { custStatus, driverStatus, restStatus }
+
+  try {
+    const updatedOrder = await OrderService.updateOrderStatus(orderId, statusUpdates);
+
+    res.status(StatusCodes.OK).json(
+      ApiResponse("Order status updated successfully", updatedOrder, StatusCodes.OK)
+    );
+  } catch (error) {
+    res.status(StatusCodes.BAD_REQUEST).json(
+      ApiResponse(error.message || "Failed to update order status", null, StatusCodes.BAD_REQUEST)
+    );
+  }
+});
+
+
 // Update an existing order
 const updateOrder = AsyncHandler(async (req, res) => {
   const { orderId } = req.params;
@@ -73,11 +91,17 @@ const getOrdersByCustomerId = AsyncHandler(async (req, res) => {
   }
 });
 
-const getOrdersByStatus = AsyncHandler(async (req, res) => {
+const getOrdersByDriverStatus = AsyncHandler(async (req, res) => {
   const { status } = req.query;
 
+  if (!status) {
+    return res.status(StatusCodes.BAD_REQUEST).json(
+      ApiResponse("Status parameter is required", null, StatusCodes.BAD_REQUEST)
+    );
+  }
+
   try {
-    const orders = await OrderService.getOrdersByStatus(status);
+    const orders = await OrderService.getOrdersByDriverStatus(status);
 
     if (!orders || orders.length === 0) {
       return res.status(StatusCodes.NOT_FOUND).json(
@@ -87,29 +111,24 @@ const getOrdersByStatus = AsyncHandler(async (req, res) => {
 
     const orderDetails = orders.map((order) => ({
       id: order._id,
-      // customerId: order.customerId ? order.customerId : "Unknown",
-      customerName: order.customerId && order.customerId.name ? order.customerId.name : "Unknown",
-      // restaurantId: order.restaurantId ? order.restaurantId : "Unknown",
-      restaurantName: order.restaurantId && order.restaurantId.userId
-        ? order.restaurantId.userId.name
-        : "Unknown",
+      customerName: order.customerId?.name || "Unknown",
+      restaurantName: order.restaurantId?.userId?.name || "Unknown",
       restDetailAddress: order.restaurantId?.detailAddress || "Unknown",
       restProvinceId: order.restaurantId?.provinceId || "Unknown", 
       restDistrictId: order.restaurantId?.districtId || "Unknown",  
       restCommuneId: order.restaurantId?.communeId || "Unknown", 
-      assignedShipperId: order.assignedShipperId ? order.assignedShipperId : null,
+      assignedShipperId: order.assignedShipperId || null,
       custShipperRating: order.custShipperRating,
       custResRating: order.custResRating,
       deliveryFee: order.deliveryFee,
       orderDatetime: order.orderDatetime,
       note: order.note,
       reason: order.reason || "",
-      status: order.custStatus,
+      custStatus: order.custStatus,
       driverStatus: order.driverStatus,
-      partnerStatus: order.partnerStatus,
+      restStatus: order.restStatus,
       orderItems: order.orderItems.map((item) => ({
-        // itemId: item.itemId,
-        itemName: item.itemId ? item.itemId.itemName : "Unknown",
+        itemName: item.itemId?.itemName || "Unknown",
         quantity: item.quantity,
         price: item.price,
         totalPrice: item.totalPrice,
@@ -118,11 +137,7 @@ const getOrdersByStatus = AsyncHandler(async (req, res) => {
     }));
 
     res.status(StatusCodes.OK).json(
-      ApiResponse(
-        `Orders with status "${status}" retrieved successfully`,
-        orderDetails,
-        StatusCodes.OK
-      )
+      ApiResponse(`Orders with status "${status}" retrieved successfully`, orderDetails, StatusCodes.OK)
     );
   } catch (error) {
     console.error("Error fetching orders by status:", error);
@@ -131,6 +146,7 @@ const getOrdersByStatus = AsyncHandler(async (req, res) => {
     );
   }
 });
+
 
 
 
@@ -153,9 +169,10 @@ const getAllOrders = AsyncHandler(async (req, res) => {
 module.exports = {
   createOrder,
   updateOrder,
+  updateOrderStatus,
   getOrderDetails,
   getOrdersByCustomerId,
-  getOrdersByStatus, 
+  getOrdersByDriverStatus, 
   getAllOrders,
 };
 
