@@ -5,17 +5,25 @@ const OrderController = require("../controllers/OrderController");
 // Route for creating a new order
 router.post("/", OrderController.createOrder);
 
+// Route for getting all orders
 router.get("/", OrderController.getAllOrders);
 
-// Route for updating an existing order by ID
-router.put("/:orderId", OrderController.updateOrder);
+// Route for getting all orders filtered by status
+// router.get("/status", OrderController.getOrdersByStatus);
+
+// Route for getting all orders by a customer ID
+router.get("/customer/:customerId", OrderController.getOrdersByCustomerId);
 
 // Route for getting order details by ID
 router.get("/:orderId", OrderController.getOrderDetails);
 
-router.get("/orders/status", OrderController.getOrdersByStatus);
+// Route for getting all orders by status
+router.get("/orders/status", OrderController.getOrdersByDriverStatus);
 
-// Route for getting all orders by a customer ID
-router.get("/orders/:customerId", OrderController.getOrdersByCustomerId);
+// Route for updating an existing order (full update)
+router.put("/:orderId", OrderController.updateOrder);
+
+// Route for updating only the order status
+router.patch("/:orderId/status", OrderController.updateOrderStatus);
 
 module.exports = router;

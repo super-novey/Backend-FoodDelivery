@@ -16,6 +16,33 @@ const createOrder = async (orderData) => {
     throw error;
   }
 };
+const updateOrderStatus = async (orderId, statusUpdates) => {
+  try {
+    const validStatuses = ['custStatus', 'driverStatus', 'restStatus'];
+
+    const updates = Object.keys(statusUpdates).reduce((acc, key) => {
+      if (validStatuses.includes(key)) {
+        acc[key] = statusUpdates[key];
+      }
+      return acc;
+    }, {});
+
+    if (Object.keys(updates).length === 0) {
+      throw new Error("No valid statuses provided for update");
+    }
+
+    const updatedOrder = await Order.findByIdAndUpdate(orderId, updates, { new: true });
+
+    if (!updatedOrder) {
+      throw new Error("Order not found or update failed");
+    }
+
+    return updatedOrder;
+  } catch (error) {
+    console.error("Error updating order status:", error.message);
+    throw error;
+  }
+};
 
 const updateOrder = async (orderId, orderUpdates) => {
   try {
@@ -70,13 +97,14 @@ const getOrdersByCustomerId = async (customerId) => {
   }
 };
 
-const getOrdersByStatus = async (status) => {
+const getOrdersByDriverStatus = async (status) => {
   try {
-    const orders = await Order.find({ status })
+    const orders = await Order.find({ driverStatus: status })
       .populate({ path: "customerId", select: "name" })
       .populate({
         path: "restaurantId",
-        populate: { path: "userId", select: "name detailAddress" },
+        select: "userId detailAddress provinceId districtId communeId",
+        populate: { path: "userId", select: "name" },
       })
       .populate({
         path: "orderItems.itemId", 
@@ -94,6 +122,7 @@ const getOrdersByStatus = async (status) => {
   }
 };
 
+
 const getAllOrders = async () => {
   try {
     const orders = await Order.find();
@@ -109,8 +138,9 @@ module.exports = {
   updateOrder,
   getOrderDetails,
   getOrdersByCustomerId,
-  getOrdersByStatus,
+  getOrdersByDriverStatus,
   getAllOrders, 
+  updateOrderStatus
 };
 
 
