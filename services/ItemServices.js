@@ -32,7 +32,8 @@ const createNewItem = async (
   status,
   itemImage,
   partnerId,
-  normalizedItemName
+  normalizedItemName,
+  quantity
 ) => {
   return await Item.create({
     categoryId,
@@ -43,6 +44,7 @@ const createNewItem = async (
     itemImage,
     partnerId,
     normalizedItemName, // Lưu tên không dấu
+    quantity,
   });
 };
 
@@ -54,7 +56,8 @@ const updateItem = async (
   description,
   status,
   itemImage,
-  normalizedItemName
+  normalizedItemName,
+  quantity
 ) => {
   try {
     const updatedItem = await Item.findByIdAndUpdate(
@@ -67,6 +70,7 @@ const updateItem = async (
         status,
         itemImage,
         normalizedItemName, // Cập nhật tên không dấu
+        quantity,
       },
       { new: true }
     );
@@ -112,10 +116,10 @@ const getItemById = async (itemId) => {
 };
 const searchItemsByName = async (query) => {
   try {
-    const normalizedQuery = removeVietnameseTones(query); 
+    const normalizedQuery = removeVietnameseTones(query);
 
     const items = await Item.find({
-      normalizedItemName: { $regex: normalizedQuery, $options: "i" }, 
+      normalizedItemName: { $regex: normalizedQuery, $options: "i" },
     });
 
     return items;
@@ -131,5 +135,5 @@ module.exports = {
   getItemById,
   deleteItem,
   updateItem,
-  searchItemsByName
+  searchItemsByName,
 };

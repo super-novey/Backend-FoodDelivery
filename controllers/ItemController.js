@@ -14,7 +14,15 @@ const removeVietnameseTones = (str) => {
     .replace(/Đ/g, "D");
 };
 const addItemToCategory = AsyncHandler(async (req, res) => {
-  const { categoryId, itemName, price, description, status, partnerId } = req.body;
+  const {
+    categoryId,
+    itemName,
+    price,
+    description,
+    status,
+    partnerId,
+    quantity,
+  } = req.body;
 
   const category = await Category.findById(categoryId);
   const partner = await Partner.findById(partnerId);
@@ -22,7 +30,13 @@ const addItemToCategory = AsyncHandler(async (req, res) => {
   if (!category || !partner) {
     return res
       .status(StatusCodes.NOT_FOUND)
-      .json(ApiResponse("Category or Partner is not found", null, StatusCodes.NOT_FOUND));
+      .json(
+        ApiResponse(
+          "Category or Partner is not found",
+          null,
+          StatusCodes.NOT_FOUND
+        )
+      );
   }
 
   let itemImage = "";
@@ -39,18 +53,21 @@ const addItemToCategory = AsyncHandler(async (req, res) => {
     status,
     itemImage,
     partnerId,
-    removeVietnameseTones(itemName) 
+    removeVietnameseTones(itemName),
+    quantity
   );
 
   res
     .status(StatusCodes.CREATED)
-    .json(ApiResponse("Item created successfully.", newItem, StatusCodes.CREATED));
+    .json(
+      ApiResponse("Item created successfully.", newItem, StatusCodes.CREATED)
+    );
 });
-
 
 const updateItemInCategory = AsyncHandler(async (req, res) => {
   const { itemId } = req.params;
-  const { categoryId, itemName, price, description, status } = req.body;
+  const { categoryId, itemName, price, description, status, quantity } =
+    req.body;
 
   const item = await ItemServices.getItemById(itemId);
   const category = categoryId ? await Category.findById(categoryId) : null;
@@ -81,19 +98,27 @@ const updateItemInCategory = AsyncHandler(async (req, res) => {
       description || item.description,
       status !== undefined ? status : item.status,
       itemImage,
-      itemName ? removeVietnameseTones(itemName) : item.normalizedItemName // Cập nhật tên không dấu
+      itemName ? removeVietnameseTones(itemName) : item.normalizedItemName, // Cập nhật tên không dấu
+      quantity || item.quantity
     );
 
     res
       .status(StatusCodes.OK)
-      .json(ApiResponse("Item updated successfully.", updatedItem, StatusCodes.OK));
+      .json(
+        ApiResponse("Item updated successfully.", updatedItem, StatusCodes.OK)
+      );
   } catch (error) {
     res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json(ApiResponse("Failed to update item.", null, StatusCodes.INTERNAL_SERVER_ERROR));
+      .json(
+        ApiResponse(
+          "Failed to update item.",
+          null,
+          StatusCodes.INTERNAL_SERVER_ERROR
+        )
+      );
   }
 });
-
 
 const deleteItem = AsyncHandler(async (req, res) => {
   const { id } = req.params;
@@ -166,12 +191,18 @@ const getItemsByCategory = AsyncHandler(async (req, res) => {
   }
 });
 const searchItemsByName = AsyncHandler(async (req, res) => {
-  const { query } = req.query; 
+  const { query } = req.query;
 
   if (!query) {
     return res
       .status(StatusCodes.BAD_REQUEST)
-      .json(ApiResponse("Query parameter is required", null, StatusCodes.BAD_REQUEST));
+      .json(
+        ApiResponse(
+          "Query parameter is required",
+          null,
+          StatusCodes.BAD_REQUEST
+        )
+      );
   }
 
   try {
@@ -179,20 +210,28 @@ const searchItemsByName = AsyncHandler(async (req, res) => {
 
     const items = await Item.find({
       $or: [
-        { itemName: { $regex: query, $options: "i" } }, 
-        { normalizedItemName: { $regex: normalizedQuery, $options: "i" } } 
-      ]
+        { itemName: { $regex: query, $options: "i" } },
+        { normalizedItemName: { $regex: normalizedQuery, $options: "i" } },
+      ],
     });
 
     if (items.length === 0) {
       return res
         .status(StatusCodes.NOT_FOUND)
-        .json(ApiResponse("No items match your search.", [], StatusCodes.NOT_FOUND));
+        .json(
+          ApiResponse("No items match your search.", [], StatusCodes.NOT_FOUND)
+        );
     }
 
     res
       .status(StatusCodes.OK)
-      .json(ApiResponse("Search results retrieved successfully.", items, StatusCodes.OK));
+      .json(
+        ApiResponse(
+          "Search results retrieved successfully.",
+          items,
+          StatusCodes.OK
+        )
+      );
   } catch (error) {
     console.error("Error searching items:", error.message);
     throw new ApiError("Failed to retrieve search results.");
@@ -205,5 +244,5 @@ module.exports = {
   getItemsByCategory,
   deleteItem,
   updateItemInCategory,
-  searchItemsByName
+  searchItemsByName,
 };

@@ -19,9 +19,14 @@ const ItemSchema = Schema({
     type: Number,
   },
 
+  quantity: {
+    type: Number,
+  },
+
   description: {
     type: String,
   },
+
   status: {
     type: Boolean,
     default: false,
@@ -32,7 +37,7 @@ const ItemSchema = Schema({
   },
   normalizedItemName: {
     type: String,
-  }
+  },
 });
 
 module.exports = mongoose.model("Item", ItemSchema);
