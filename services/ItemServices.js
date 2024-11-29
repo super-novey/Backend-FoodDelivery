@@ -23,7 +23,22 @@ const getItemsByCategoryId = async (categoryId, isDeleted) => {
     throw error;
   }
 };
+const getItemsByCategoryIdInCustomer = async (categoryId, isDeleted, status) => {
+  try {
+    const items = await Item.find({ categoryId: categoryId, isDeleted: isDeleted, status: status });
 
+    if (items.length === 0) {
+      console.log("No items found for this category.");
+    } else {
+      console.log("Items:", items);
+    }
+
+    return items;
+  } catch (error) {
+    console.error("Error retrieving items by category ID:", error.message);
+    throw error;
+  }
+};
 const createNewItem = async (
   categoryId,
   itemName,
@@ -124,12 +139,13 @@ const getItemById = async (itemId) => {
     throw error;
   }
 };
-const searchItemsByName = async (query) => {
+const searchItemsByName = async (query, status) => {
   try {
     const normalizedQuery = removeVietnameseTones(query);
 
     const items = await Item.find({
       normalizedItemName: { $regex: normalizedQuery, $options: "i" },
+      status
     });
 
     return items;
@@ -146,4 +162,5 @@ module.exports = {
   deleteItem,
   updateItem,
   searchItemsByName,
+  getItemsByCategoryIdInCustomer
 };

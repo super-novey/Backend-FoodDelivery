@@ -18,5 +18,5 @@ router.get("/:itemId", ItemController.getItemById);
 router.get("/category/:categoryId", ItemController.getItemsByCategory);
 router.put("/delete/:id", ItemController.deleteItem);
 router.get("/customer/search", ItemController.searchItemsByName);
-
+router.get("/customer/category/:categoryId", ItemController.getItemsByCategoryInCustomer);
 module.exports = router;
