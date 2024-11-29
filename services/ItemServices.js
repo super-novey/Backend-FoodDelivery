@@ -7,9 +7,9 @@ const removeVietnameseTones = (str) => {
     .replace(/đ/g, "d")
     .replace(/Đ/g, "D");
 };
-const getItemsByCategoryId = async (categoryId) => {
+const getItemsByCategoryId = async (categoryId, isDeleted) => {
   try {
-    const items = await Item.find({ categoryId: categoryId });
+    const items = await Item.find({ categoryId: categoryId, isDeleted: isDeleted });
 
     if (items.length === 0) {
       console.log("No items found for this category.");
@@ -86,13 +86,23 @@ const updateItem = async (
   }
 };
 
+// const deleteItem = async (id) => {
+//   try {
+//     const deletedItem = await Item.findByIdAndDelete(id);
+//     if (!deletedItem) {
+//       return null;
+//     }
+//     return deletedItem;
+//   } catch (e) {
+//     throw new Error(e);
+//   }
+// };
+
 const deleteItem = async (id) => {
   try {
-    const deletedItem = await Item.findByIdAndDelete(id);
-    if (!deletedItem) {
-      return null;
-    }
+    const deletedItem = await Item.findByIdAndUpdate(id, { isDeleted: true}, { new: true });
     return deletedItem;
+
   } catch (e) {
     throw new Error(e);
   }

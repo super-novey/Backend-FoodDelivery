@@ -165,7 +165,7 @@ const getItemsByCategory = AsyncHandler(async (req, res) => {
 
   try {
     // Fetch items by category ID
-    const items = await ItemServices.getItemsByCategoryId(categoryId);
+    const items = await ItemServices.getItemsByCategoryId(categoryId, false);
 
     if (items.length === 0) {
       return res
