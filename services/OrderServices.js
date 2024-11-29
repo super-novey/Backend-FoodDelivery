@@ -1,5 +1,5 @@
 const Order = require("../models/Order");
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const { StatusCodes } = require("http-status-codes");
 
 const createOrder = async (orderData) => {
@@ -18,7 +18,7 @@ const createOrder = async (orderData) => {
 };
 const updateOrderStatus = async (orderId, statusUpdates) => {
   try {
-    const validStatuses = ['custStatus', 'driverStatus', 'restStatus'];
+    const validStatuses = ["custStatus", "driverStatus", "restStatus"];
 
     const updates = Object.keys(statusUpdates).reduce((acc, key) => {
       if (validStatuses.includes(key)) {
@@ -31,7 +31,9 @@ const updateOrderStatus = async (orderId, statusUpdates) => {
       throw new Error("No valid statuses provided for update");
     }
 
-    const updatedOrder = await Order.findByIdAndUpdate(orderId, updates, { new: true });
+    const updatedOrder = await Order.findByIdAndUpdate(orderId, updates, {
+      new: true,
+    });
 
     if (!updatedOrder) {
       throw new Error("Order not found or update failed");
@@ -46,7 +48,9 @@ const updateOrderStatus = async (orderId, statusUpdates) => {
 
 const updateOrder = async (orderId, orderUpdates) => {
   try {
-    const updatedOrder = await Order.findByIdAndUpdate(orderId, orderUpdates, { new: true });
+    const updatedOrder = await Order.findByIdAndUpdate(orderId, orderUpdates, {
+      new: true,
+    });
 
     if (!updatedOrder) {
       throw new Error("Order not found or update failed");
@@ -59,16 +63,15 @@ const updateOrder = async (orderId, orderUpdates) => {
   }
 };
 
-
-
 const getOrderDetails = async (orderId) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(orderId)) {
       throw new Error("Invalid order ID format");
     }
 
-    const order = await Order.findById(orderId)
-      .populate('customer_id restaurant_id assigned_shipper_id');
+    const order = await Order.findById(orderId).populate(
+      "customer_id restaurant_id assigned_shipper_id"
+    );
 
     if (!order) {
       throw new Error("Order not found");
@@ -81,10 +84,11 @@ const getOrderDetails = async (orderId) => {
   }
 };
 
-
 const getOrdersByCustomerId = async (customerId) => {
   try {
-    const orders = await Order.find({ customer_id: customerId }).populate('restaurant_id assigned_shipper_id');
+    const orders = await Order.find({ customer_id: customerId }).populate(
+      "restaurant_id assigned_shipper_id"
+    );
 
     if (!orders || orders.length === 0) {
       throw new Error("No orders found for this customer");
@@ -94,6 +98,22 @@ const getOrdersByCustomerId = async (customerId) => {
   } catch (error) {
     console.error("Error fetching orders by customer:", error.message);
     throw error;
+  }
+};
+
+const getOrdersByPartnerId = async (partnerId) => {
+  try {
+    const orders = await Order.find({ restaurantId: partnerId }).populate(
+      "customerId assignedShipperId"
+    );
+
+    if (!orders || orders.length === 0) {
+      throw new Error("No orders found for this partner");
+    }
+
+    return orders;
+  } catch (e) {
+    throw e;
   }
 };
 
@@ -107,8 +127,8 @@ const getOrdersByDriverStatus = async (status) => {
         populate: { path: "userId", select: "name" },
       })
       .populate({
-        path: "orderItems.itemId", 
-        select: "itemName", 
+        path: "orderItems.itemId",
+        select: "itemName",
       });
 
     if (!orders || orders.length === 0) {
@@ -121,7 +141,6 @@ const getOrdersByDriverStatus = async (status) => {
     throw error;
   }
 };
-
 
 const getAllOrders = async () => {
   try {
@@ -138,9 +157,8 @@ module.exports = {
   updateOrder,
   getOrderDetails,
   getOrdersByCustomerId,
+  getOrdersByPartnerId,
   getOrdersByDriverStatus,
-  getAllOrders, 
-  updateOrderStatus
+  getAllOrders,
+  updateOrderStatus,
 };
-
-

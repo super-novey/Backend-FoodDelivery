@@ -143,6 +143,30 @@ const getOrdersByCustomerId = AsyncHandler(async (req, res) => {
   }
 });
 
+const getOrdersByPartnerId = AsyncHandler(async (req, res) => {
+  const { partnerId } = req.params;
+
+  try {
+    const orders = await OrderService.getOrdersByPartnerId(partnerId);
+
+    res
+      .status(StatusCodes.OK)
+      .json(
+        ApiResponse("Orders retrieved successfully", orders, StatusCodes.OK)
+      );
+  } catch (error) {
+    res
+      .status(StatusCodes.NOT_FOUND)
+      .json(
+        ApiResponse(
+          "No orders found for this partner",
+          null,
+          StatusCodes.NOT_FOUND
+        )
+      );
+  }
+});
+
 const getOrdersByDriverStatus = AsyncHandler(async (req, res) => {
   const { status } = req.query;
 
@@ -248,6 +272,7 @@ module.exports = {
   updateOrderStatus,
   getOrderDetails,
   getOrdersByCustomerId,
+  getOrdersByPartnerId,
   getOrdersByDriverStatus,
   getAllOrders,
 };

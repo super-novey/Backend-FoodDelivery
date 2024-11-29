@@ -8,7 +8,7 @@ const OrderSchema = new Schema({
     ref: "User",
     required: true,
   },
-  
+
   restaurantId: {
     type: Schema.Types.ObjectId,
     ref: "UpdatedPartner",
@@ -49,12 +49,25 @@ const OrderSchema = new Schema({
   },
   custStatus: {
     type: String,
-    enum: ["waiting", "heading_to_rest", "preparing", "delivering", "delivered", "cancelled"],
+    enum: [
+      "waiting",
+      "heading_to_rest",
+      "preparing",
+      "delivering",
+      "delivered",
+      "cancelled",
+    ],
     default: "new",
   },
   driverStatus: {
     type: String,
-    enum: ["waiting", "heading_to_rest", "delivering", "delivered", "cancelled"],
+    enum: [
+      "waiting",
+      "heading_to_rest",
+      "delivering",
+      "delivered",
+      "cancelled",
+    ],
     default: "waiting",
   },
   restStatus: {
