@@ -35,6 +35,12 @@ const ItemSchema = Schema({
   itemImage: {
     type: String,
   },
+
+  isDeleted: {
+    type: String,
+    default: false,
+  },
+
   normalizedItemName: {
     type: String,
   },
