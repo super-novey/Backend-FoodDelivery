@@ -209,6 +209,7 @@ const searchItemsByName = AsyncHandler(async (req, res) => {
     const normalizedQuery = removeVietnameseTones(query);
 
     const items = await Item.find({
+      status: true,
       $or: [
         { itemName: { $regex: query, $options: "i" } },
         { normalizedItemName: { $regex: normalizedQuery, $options: "i" } },
@@ -237,7 +238,36 @@ const searchItemsByName = AsyncHandler(async (req, res) => {
     throw new ApiError("Failed to retrieve search results.");
   }
 });
+const getItemsByCategoryInCustomer = AsyncHandler(async (req, res) => {
+  const { categoryId } = req.params;
 
+  try {
+    // Fetch items by category ID
+    const items = await ItemServices.getItemsByCategoryIdInCustomer(categoryId, false, true);
+
+    if (items.length === 0) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json(
+          ApiResponse(
+            "No items found for this category.",
+            [],
+            StatusCodes.NOT_FOUND
+          )
+        );
+    }
+
+    // Respond with the list of items
+    res
+      .status(StatusCodes.OK)
+      .json(
+        ApiResponse("Items retrieved successfully.", items, StatusCodes.OK)
+      );
+  } catch (error) {
+    console.error("Error retrieving items by category ID:", error.message);
+    throw new Error("Failed to retrieve items.");
+  }
+});
 module.exports = {
   addItemToCategory,
   getItemById,
@@ -245,4 +275,5 @@ module.exports = {
   deleteItem,
   updateItemInCategory,
   searchItemsByName,
+  getItemsByCategoryInCustomer
 };
