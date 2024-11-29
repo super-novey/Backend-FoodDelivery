@@ -146,12 +146,32 @@ const deleteApprove = AsyncHandler(async (req, res) => {
     throw new ApiError("Failed to delete user", StatusCodes.INTERNAL_SERVER_ERROR);
   }
 });
+const getUserByUserId = async (req, res) => {
+  try {
+    const { id } = req.params; 
 
+    const user = await userService.getUserById(id);
+    
+
+    res.status(200).json({
+      success: true,
+      message: 'Partner fetched successfully',
+      data: user, 
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Partner error occurred',
+    });
+  }
+};
 module.exports = {
   loadListUser,
   loadListUserByRoleAndStatus,
   approveUser,
   updateUser,
   deleteUser,
-  deleteApprove
+  deleteApprove,
+  getUserByUserId
 };
