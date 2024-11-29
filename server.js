@@ -5,6 +5,8 @@ const express = require("express");
 const dotenv = require("dotenv");
 const path = require("path");
 const cors = require("cors");
+const { Server } = require("socket.io");
+const { initializeSocket } = require("./config/socket");
 dotenv.config();
 
 /*==============================
@@ -43,9 +45,15 @@ app.use("/api/v1", Routes); // routes and prefix
 public endpoint for file/media access
 ==============================*/
 app.use("/public", express.static(path.join(__dirname, "public")));
+
 /*==============================
 start server listen
 ==============================*/
-app.listen(port, () => {
+const expressServer = app.listen(port, () => {
   console.log(`app listening on port ${port}`);
 });
+
+/*==============================
+Socket.IO Integration
+==============================*/
+initializeSocket(expressServer);

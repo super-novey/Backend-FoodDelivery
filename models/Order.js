@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
-const { OrderItemSchema } = require("./OrderItem.js"); 
+const { OrderItemSchema } = require("./OrderItem.js");
 
 const OrderSchema = new Schema({
   customerId: {
@@ -62,7 +62,7 @@ const OrderSchema = new Schema({
     enum: ["new", "preparing", "completed", "cancelled"],
     default: null,
   },
-  orderItems: [OrderItemSchema], 
+  orderItems: [OrderItemSchema],
 });
 
 module.exports = mongoose.model("Order", OrderSchema);
