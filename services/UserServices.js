@@ -78,11 +78,23 @@ const deleteApprove = async (userId) => {
     throw new Error("Có lỗi xảy ra khi xóa người dùng");
   }
 };
-
+const getUserById = async (userId) => {
+  try {
+    const user = await User.findById(userId).exec();
+    if (!user) {
+      return null; 
+    }
+    return user;
+  } catch (error) {
+    console.error("Error fetching user by ID:", error);
+    throw new Error("Error fetching user by ID");
+  }
+};
 module.exports = { isUserExists, createUser, findUsersByStatus,
   findUsersByRoleAndStatus,
   updateUserById,
   approveUserById, 
   deleteUser,
-  deleteApprove
+  deleteApprove,
+  getUserById
 };
