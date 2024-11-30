@@ -282,6 +282,40 @@ const getItemsByCategoryInCustomer = AsyncHandler(async (req, res) => {
     throw new Error("Failed to retrieve items.");
   }
 });
+const getItemByCategoryInHome = AsyncHandler(async (req, res) => {
+  const { keySearch } = req.query; 
+
+  if (!keySearch) {
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      message: "keySearch parameter is required.",
+    });
+  }
+
+  try {
+    const items = await ItemServices.getItemByCategory(keySearch);
+
+    if (items.length === 0) {
+      return res.status(StatusCodes.NOT_FOUND).json(
+        ApiResponse(
+          "No items found with the provided keySearch.",
+          [],
+          StatusCodes.NOT_FOUND
+        )
+      );
+    }
+
+    return res.status(StatusCodes.OK).json(
+      ApiResponse("Items retrieved successfully.", items, StatusCodes.OK)
+    );
+  } catch (error) {
+    console.error("Error retrieving items:", error.message);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: "Failed to retrieve items.",
+    });
+  }
+});
+
+
 module.exports = {
   addItemToCategory,
   getItemById,
@@ -290,4 +324,5 @@ module.exports = {
   updateItemInCategory,
   searchItemsByName,
   getItemsByCategoryInCustomer,
+  getItemByCategoryInHome
 };
