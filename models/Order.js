@@ -57,7 +57,7 @@ const OrderSchema = new Schema({
       "delivered",
       "cancelled",
     ],
-    default: "new",
+    default: "waiting",
   },
   driverStatus: {
     type: String,
@@ -73,9 +73,13 @@ const OrderSchema = new Schema({
   restStatus: {
     type: String,
     enum: ["new", "preparing", "completed", "cancelled"],
-    default: null,
+    default: "new",
   },
   orderItems: [OrderItemSchema],
+  totalPrice: {
+    type: Number,
+    default: 0,
+  }
 });
 
 module.exports = mongoose.model("Order", OrderSchema);
