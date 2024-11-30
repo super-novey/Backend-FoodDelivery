@@ -215,13 +215,16 @@ const getOrdersByDriverStatus = AsyncHandler(async (req, res) => {
       custStatus: order.custStatus,
       driverStatus: order.driverStatus,
       restStatus: order.restStatus,
+
       orderItems: order.orderItems.map((item) => ({
         itemName: item.itemId?.itemName || "Unknown",
         quantity: item.quantity,
         price: item.price,
         totalPrice: item.totalPrice,
         id: item._id,
-      })),
+      })
+      ),
+      totalPrice: order.totalPrice
     }));
 
     res
