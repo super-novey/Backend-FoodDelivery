@@ -173,6 +173,29 @@ const searchItemsByName = async (query, status) => {
   }
 };
 
+const getItemByCategory = async (keySearch) => {
+  try {
+    if (typeof keySearch !== 'string') {
+      keySearch = String(keySearch); 
+    }
+    console.log("keySearch:", keySearch);
+
+    const items = await Item.find({
+      keySearch: { $regex: keySearch, $options: 'i' }, 
+    });
+
+    if (!items || items.length === 0) {
+      console.log("No items found with the keySearch:", keySearch);
+      return [];
+    }
+
+    return items;
+  } catch (error) {
+    console.error("Error retrieving items by keySearch:", error.message);
+    throw error;
+  }
+};
+
 module.exports = {
   getItemsByCategoryId,
   createNewItem,
@@ -181,4 +204,5 @@ module.exports = {
   updateItem,
   searchItemsByName,
   getItemsByCategoryIdInCustomer,
+  getItemByCategory
 };
