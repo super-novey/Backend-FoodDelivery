@@ -19,6 +19,10 @@ const ItemSchema = Schema({
     type: Number,
   },
 
+  keySearch: {
+    type: String,
+  },
+
   quantity: {
     type: Number,
   },

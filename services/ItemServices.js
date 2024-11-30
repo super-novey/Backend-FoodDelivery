@@ -9,7 +9,10 @@ const removeVietnameseTones = (str) => {
 };
 const getItemsByCategoryId = async (categoryId, isDeleted) => {
   try {
-    const items = await Item.find({ categoryId: categoryId, isDeleted: isDeleted });
+    const items = await Item.find({
+      categoryId: categoryId,
+      isDeleted: isDeleted,
+    });
 
     if (items.length === 0) {
       console.log("No items found for this category.");
@@ -23,9 +26,17 @@ const getItemsByCategoryId = async (categoryId, isDeleted) => {
     throw error;
   }
 };
-const getItemsByCategoryIdInCustomer = async (categoryId, isDeleted, status) => {
+const getItemsByCategoryIdInCustomer = async (
+  categoryId,
+  isDeleted,
+  status
+) => {
   try {
-    const items = await Item.find({ categoryId: categoryId, isDeleted: isDeleted, status: status });
+    const items = await Item.find({
+      categoryId: categoryId,
+      isDeleted: isDeleted,
+      status: status,
+    });
 
     if (items.length === 0) {
       console.log("No items found for this category.");
@@ -48,7 +59,8 @@ const createNewItem = async (
   itemImage,
   partnerId,
   normalizedItemName,
-  quantity
+  quantity,
+  keySearch
 ) => {
   return await Item.create({
     categoryId,
@@ -60,6 +72,7 @@ const createNewItem = async (
     partnerId,
     normalizedItemName, // Lưu tên không dấu
     quantity,
+    keySearch,
   });
 };
 
@@ -72,7 +85,8 @@ const updateItem = async (
   status,
   itemImage,
   normalizedItemName,
-  quantity
+  quantity,
+  keySearch
 ) => {
   try {
     const updatedItem = await Item.findByIdAndUpdate(
@@ -86,6 +100,7 @@ const updateItem = async (
         itemImage,
         normalizedItemName, // Cập nhật tên không dấu
         quantity,
+        keySearch,
       },
       { new: true }
     );
@@ -115,9 +130,12 @@ const updateItem = async (
 
 const deleteItem = async (id) => {
   try {
-    const deletedItem = await Item.findByIdAndUpdate(id, { isDeleted: true}, { new: true });
+    const deletedItem = await Item.findByIdAndUpdate(
+      id,
+      { isDeleted: true },
+      { new: true }
+    );
     return deletedItem;
-
   } catch (e) {
     throw new Error(e);
   }
@@ -145,7 +163,7 @@ const searchItemsByName = async (query, status) => {
 
     const items = await Item.find({
       normalizedItemName: { $regex: normalizedQuery, $options: "i" },
-      status
+      status,
     });
 
     return items;
@@ -162,5 +180,5 @@ module.exports = {
   deleteItem,
   updateItem,
   searchItemsByName,
-  getItemsByCategoryIdInCustomer
+  getItemsByCategoryIdInCustomer,
 };

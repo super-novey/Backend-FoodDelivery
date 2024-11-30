@@ -22,6 +22,7 @@ const addItemToCategory = AsyncHandler(async (req, res) => {
     status,
     partnerId,
     quantity,
+    keySearch,
   } = req.body;
 
   const category = await Category.findById(categoryId);
@@ -54,7 +55,8 @@ const addItemToCategory = AsyncHandler(async (req, res) => {
     itemImage,
     partnerId,
     removeVietnameseTones(itemName),
-    quantity
+    quantity,
+    keySearch
   );
 
   res
@@ -66,8 +68,15 @@ const addItemToCategory = AsyncHandler(async (req, res) => {
 
 const updateItemInCategory = AsyncHandler(async (req, res) => {
   const { itemId } = req.params;
-  const { categoryId, itemName, price, description, status, quantity } =
-    req.body;
+  const {
+    categoryId,
+    itemName,
+    price,
+    description,
+    status,
+    quantity,
+    keySearch,
+  } = req.body;
 
   const item = await ItemServices.getItemById(itemId);
   const category = categoryId ? await Category.findById(categoryId) : null;
@@ -99,7 +108,8 @@ const updateItemInCategory = AsyncHandler(async (req, res) => {
       status !== undefined ? status : item.status,
       itemImage,
       itemName ? removeVietnameseTones(itemName) : item.normalizedItemName, // Cập nhật tên không dấu
-      quantity || item.quantity
+      quantity || item.quantity,
+      keySearch || keySearch
     );
 
     res
@@ -243,7 +253,11 @@ const getItemsByCategoryInCustomer = AsyncHandler(async (req, res) => {
 
   try {
     // Fetch items by category ID
-    const items = await ItemServices.getItemsByCategoryIdInCustomer(categoryId, false, true);
+    const items = await ItemServices.getItemsByCategoryIdInCustomer(
+      categoryId,
+      false,
+      true
+    );
 
     if (items.length === 0) {
       return res
@@ -275,5 +289,5 @@ module.exports = {
   deleteItem,
   updateItemInCategory,
   searchItemsByName,
-  getItemsByCategoryInCustomer
+  getItemsByCategoryInCustomer,
 };
