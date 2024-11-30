@@ -103,10 +103,20 @@ const getOrdersByCustomerId = async (customerId) => {
 
 const getOrdersByPartnerId = async (partnerId) => {
   try {
-    const orders = await Order.find({ restaurantId: partnerId }).populate(
-      "customerId assignedShipperId"
-    );
-
+    const orders = await Order.find({
+      restaurantId: partnerId,
+      assignedShipperId: { $ne: null },
+    })
+      .populate({ path: "customerId", select: "name" })
+      .populate({
+        path: "assignedShipperId",
+        select: "userId",
+        populate: { path: "userId", select: "name" },
+      })
+      .populate({
+        path: "orderItems.itemId",
+        select: "itemName",
+      });
     if (!orders || orders.length === 0) {
       throw new Error("No orders found for this partner");
     }
