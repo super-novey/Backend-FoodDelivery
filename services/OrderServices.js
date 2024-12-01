@@ -171,8 +171,9 @@ const getOrderById = async (orderId) => {
         select: "itemName",
       })
       .populate({
-        path: "assignedShipperId", select: "licensePlate profileUrl",
-        populate: { path: "userId", select: "name" },
+        path: "assignedShipperId",
+        select: "userId assignedShipperId licensePlate profileUrl",
+        populate: { path: "userId", select: "name phone" },
       })
       ;
 
