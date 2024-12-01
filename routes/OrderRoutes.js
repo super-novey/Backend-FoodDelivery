@@ -18,7 +18,7 @@ router.get("/customer/:customerId", OrderController.getOrdersByCustomerId);
 router.get("/partner/:partnerId", OrderController.getOrdersByPartnerId);
 
 // Route for getting order details by ID
-router.get("/:orderId", OrderController.getOrderDetails);
+router.get("/:orderId", OrderController.getOrderById);
 
 // Route for getting all orders by status
 router.get("/orders/status", OrderController.getOrdersByDriverStatus);

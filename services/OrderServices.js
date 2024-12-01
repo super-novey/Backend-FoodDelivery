@@ -157,6 +157,38 @@ const getOrdersByDriverStatus = async (status) => {
   }
 };
 
+const getOrderById = async (orderId) => {
+  try {
+    const order = await Order.findById(orderId)
+      .populate({ path: "customerId", select: "name phone" })
+      .populate({
+        path: "restaurantId",
+        select: "userId detailAddress provinceId districtId communeId",
+        populate: { path: "userId", select: "name" },
+      })
+      .populate({
+        path: "orderItems.itemId",
+        select: "itemName",
+      })
+      .populate({
+        path: "assignedShipperId",
+        select: "userId assignedShipperId licensePlate profileUrl",
+        populate: { path: "userId", select: "name phone" },
+      })
+      ;
+
+    if (!order) {
+      throw new Error("Order not found");
+    }
+
+    return order;
+  } catch (error) {
+    console.error("Error fetching order by ID:", error.message);
+    throw error;
+  }
+};
+
+
 const getAllOrders = async () => {
   try {
     const orders = await Order.find();
@@ -176,4 +208,5 @@ module.exports = {
   getOrdersByDriverStatus,
   getAllOrders,
   updateOrderStatus,
+  getOrderById,
 };
