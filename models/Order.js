@@ -18,7 +18,7 @@ const OrderSchema = new Schema({
   },
   assignedShipperId: {
     type: Schema.Types.ObjectId,
-    ref: "UpdateDriver",
+    ref: "UpdatedDriver",
     default: null,
   },
   custShipperRating: {
