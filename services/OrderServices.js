@@ -50,7 +50,6 @@ const updateOrderStatus = async (orderId, statusUpdates) => {
   }
 };
 
-
 const updateOrder = async (orderId, orderUpdates) => {
   try {
     const updatedOrder = await Order.findByIdAndUpdate(orderId, orderUpdates, {
@@ -174,20 +173,51 @@ const getOrderById = async (orderId) => {
         path: "assignedShipperId",
         select: "userId assignedShipperId licensePlate profileUrl",
         populate: { path: "userId", select: "name phone" },
-      })
-      ;
-
+      });
     if (!order) {
       throw new Error("Order not found");
     }
 
-    return order;
+    const orderDetails = {
+      id: order._id,
+      customerName: order.customerId?.name || "Unknown",
+      custAddress: order.custAddress || "Unknown",
+      custPhone: order.customerId?.phone || "Unknown",
+      restaurantName: order.restaurantId?.userId?.name || "Unknown",
+      restDetailAddress: order.restaurantId?.detailAddress || "Unknown",
+      restProvinceId: order.restaurantId?.provinceId || "Unknown",
+      restDistrictId: order.restaurantId?.districtId || "Unknown",
+      restCommuneId: order.restaurantId?.communeId || "Unknown",
+      driverName: order.assignedShipperId?.userId?.name || "Unknown",
+      driverPhone: order.assignedShipperId?.userId?.phone || "Unknown",
+      driverLicensePlate: order.assignedShipperId?.licensePlate || "Unknown",
+      driverProfileUrl: order.assignedShipperId?.profileUrl || "Unknown",
+      custShipperRating: order.custShipperRating,
+      custResRating: order.custResRating,
+      deliveryFee: order.deliveryFee,
+      orderDatetime: order.orderDatetime,
+      note: order.note,
+      reason: order.reason || "",
+      custStatus: order.custStatus,
+      driverStatus: order.driverStatus,
+      restStatus: order.restStatus,
+
+      orderItems: order.orderItems.map((item) => ({
+        itemName: item.itemId?.itemName || "Unknown",
+        quantity: item.quantity,
+        price: item.price,
+        totalPrice: item.totalPrice,
+        id: item._id,
+      })),
+      totalPrice: order.totalPrice,
+    };
+
+    return orderDetails;
   } catch (error) {
     console.error("Error fetching order by ID:", error.message);
     throw error;
   }
 };
-
 
 const getAllOrders = async () => {
   try {

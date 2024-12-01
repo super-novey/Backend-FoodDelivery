@@ -4,15 +4,22 @@ const { StatusCodes } = require("http-status-codes");
 const ApiResponse = require("./response/ApiResponse");
 const ApiError = require("./error/ApiError");
 const { getIO } = require("../config/socket");
+const Order = require("../models/Order");
 
 // Create a new order
 const createOrder = AsyncHandler(async (req, res) => {
   const orderData = req.body;
 
   try {
-    const createdOrder = await OrderService.createOrder(orderData);
+    const newOrder = await OrderService.createOrder(orderData);
 
-    const newOrder = { ...createdOrder.toObject(), id: createdOrder._id };
+    const io = getIO();
+
+    const detailOrder = await OrderService.getOrderById(newOrder._id);
+
+    console.log();
+
+    io.emit("order:new", detailOrder);
 
     res
       .status(StatusCodes.CREATED)
@@ -44,7 +51,10 @@ const updateOrderStatus = AsyncHandler(async (req, res) => {
       ...(assignedShipperId && { assignedShipperId }),
     };
 
-    const updatedOrder = await OrderService.updateOrderStatus(orderId, statusUpdates);
+    const updatedOrder = await OrderService.updateOrderStatus(
+      orderId,
+      statusUpdates
+    );
 
     res
       .status(StatusCodes.OK)
@@ -67,7 +77,6 @@ const updateOrderStatus = AsyncHandler(async (req, res) => {
       );
   }
 });
-
 
 // Update an existing order
 const updateOrder = AsyncHandler(async (req, res) => {
@@ -188,55 +197,49 @@ const getOrderById = AsyncHandler(async (req, res) => {
     if (!order) {
       return res
         .status(StatusCodes.NOT_FOUND)
-        .json(
-          ApiResponse(
-            "Order not found",
-            null,
-            StatusCodes.NOT_FOUND
-          )
-        );
+        .json(ApiResponse("Order not found", null, StatusCodes.NOT_FOUND));
     }
 
-    const orderDetails = {
-      id: order._id,
-      customerName: order.customerId?.name || "Unknown",
-      custAddress: order.custAddress || "Unknown",
-      custPhone: order.customerId?.phone || "Unknown",
-      restaurantName: order.restaurantId?.userId?.name || "Unknown",
-      restDetailAddress: order.restaurantId?.detailAddress || "Unknown",
-      restProvinceId: order.restaurantId?.provinceId || "Unknown",
-      restDistrictId: order.restaurantId?.districtId || "Unknown",
-      restCommuneId: order.restaurantId?.communeId || "Unknown",
-      driverName: order.assignedShipperId?.userId?.name || "Unknown",
-      driverPhone: order.assignedShipperId?.userId?.phone || "Unknown",
-      driverLicensePlate: order.assignedShipperId?.licensePlate || "Unknown",
-      driverProfileUrl: order.assignedShipperId?.profileUrl || "Unknown",
-      custShipperRating: order.custShipperRating,
-      custResRating: order.custResRating,
-      deliveryFee: order.deliveryFee,
-      orderDatetime: order.orderDatetime,
-      note: order.note,
-      reason: order.reason || "",
-      custStatus: order.custStatus,
-      driverStatus: order.driverStatus,
-      restStatus: order.restStatus,
+    // const orderDetails = {
+    //   id: order._id,
+    //   customerName: order.customerId?.name || "Unknown",
+    //   custAddress: order.custAddress || "Unknown",
+    //   custPhone: order.customerId?.phone || "Unknown",
+    //   restaurantName: order.restaurantId?.userId?.name || "Unknown",
+    //   restDetailAddress: order.restaurantId?.detailAddress || "Unknown",
+    //   restProvinceId: order.restaurantId?.provinceId || "Unknown",
+    //   restDistrictId: order.restaurantId?.districtId || "Unknown",
+    //   restCommuneId: order.restaurantId?.communeId || "Unknown",
+    //   driverName: order.assignedShipperId?.userId?.name || "Unknown",
+    //   driverPhone: order.assignedShipperId?.userId?.phone || "Unknown",
+    //   driverLicensePlate: order.assignedShipperId?.licensePlate || "Unknown",
+    //   driverProfileUrl: order.assignedShipperId?.profileUrl || "Unknown",
+    //   custShipperRating: order.custShipperRating,
+    //   custResRating: order.custResRating,
+    //   deliveryFee: order.deliveryFee,
+    //   orderDatetime: order.orderDatetime,
+    //   note: order.note,
+    //   reason: order.reason || "",
+    //   custStatus: order.custStatus,
+    //   driverStatus: order.driverStatus,
+    //   restStatus: order.restStatus,
 
-      orderItems: order.orderItems.map((item) => ({
-        itemName: item.itemId?.itemName || "Unknown",
-        quantity: item.quantity,
-        price: item.price,
-        totalPrice: item.totalPrice,
-        id: item._id,
-      })),
-      totalPrice: order.totalPrice,
-    };
+    //   orderItems: order.orderItems.map((item) => ({
+    //     itemName: item.itemId?.itemName || "Unknown",
+    //     quantity: item.quantity,
+    //     price: item.price,
+    //     totalPrice: item.totalPrice,
+    //     id: item._id,
+    //   })),
+    //   totalPrice: order.totalPrice,
+    // };
 
     res
       .status(StatusCodes.OK)
       .json(
         ApiResponse(
           `Order with ID "${orderId}" retrieved successfully`,
-          orderDetails,
+          order,
           StatusCodes.OK
         )
       );
@@ -253,7 +256,6 @@ const getOrderById = AsyncHandler(async (req, res) => {
       );
   }
 });
-
 
 const getOrdersByDriverStatus = AsyncHandler(async (req, res) => {
   const { status } = req.query;
@@ -312,9 +314,8 @@ const getOrdersByDriverStatus = AsyncHandler(async (req, res) => {
         price: item.price,
         totalPrice: item.totalPrice,
         id: item._id,
-      })
-      ),
-      totalPrice: order.totalPrice
+      })),
+      totalPrice: order.totalPrice,
     }));
 
     res
@@ -339,8 +340,6 @@ const getOrdersByDriverStatus = AsyncHandler(async (req, res) => {
       );
   }
 });
-
-
 
 const getAllOrders = AsyncHandler(async (req, res) => {
   try {
