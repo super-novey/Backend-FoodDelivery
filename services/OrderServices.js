@@ -27,6 +27,10 @@ const updateOrderStatus = async (orderId, statusUpdates) => {
       return acc;
     }, {});
 
+    if (statusUpdates.assignedShipperId) {
+      updates.assignedShipperId = statusUpdates.assignedShipperId;
+    }
+
     if (Object.keys(updates).length === 0) {
       throw new Error("No valid statuses provided for update");
     }
@@ -45,6 +49,7 @@ const updateOrderStatus = async (orderId, statusUpdates) => {
     throw error;
   }
 };
+
 
 const updateOrder = async (orderId, orderUpdates) => {
   try {
@@ -130,7 +135,7 @@ const getOrdersByPartnerId = async (partnerId) => {
 const getOrdersByDriverStatus = async (status) => {
   try {
     const orders = await Order.find({ driverStatus: status })
-      .populate({ path: "customerId", select: "name" })
+      .populate({ path: "customerId", select: "name phone" })
       .populate({
         path: "restaurantId",
         select: "userId detailAddress provinceId districtId communeId",

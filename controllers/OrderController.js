@@ -39,19 +39,23 @@ const createOrder = AsyncHandler(async (req, res) => {
 
 const updateOrderStatus = AsyncHandler(async (req, res) => {
   const { orderId } = req.params;
-  const statusUpdates = req.body; // Expect { custStatus, driverStatus, restStatus }
+  const { custStatus, driverStatus, restStatus, assignedShipperId } = req.body; // Expect statuses and assignedShipperId
 
   try {
-    const updatedOrder = await OrderService.updateOrderStatus(
-      orderId,
-      statusUpdates
-    );
+    const statusUpdates = {
+      ...(custStatus && { custStatus }),
+      ...(driverStatus && { driverStatus }),
+      ...(restStatus && { restStatus }),
+      ...(assignedShipperId && { assignedShipperId }),
+    };
+
+    const updatedOrder = await OrderService.updateOrderStatus(orderId, statusUpdates);
 
     res
       .status(StatusCodes.OK)
       .json(
         ApiResponse(
-          "Order status updated successfully",
+          "Trạng thái đơn hàng đã được cập nhật.",
           updatedOrder,
           StatusCodes.OK
         )
@@ -61,13 +65,14 @@ const updateOrderStatus = AsyncHandler(async (req, res) => {
       .status(StatusCodes.BAD_REQUEST)
       .json(
         ApiResponse(
-          error.message || "Failed to update order status",
+          error.message || "Cập nhật trạng thái đơn hàng thất bại.",
           null,
           StatusCodes.BAD_REQUEST
         )
       );
   }
 });
+
 
 // Update an existing order
 const updateOrder = AsyncHandler(async (req, res) => {
@@ -200,6 +205,8 @@ const getOrdersByDriverStatus = AsyncHandler(async (req, res) => {
     const orderDetails = orders.map((order) => ({
       id: order._id,
       customerName: order.customerId?.name || "Unknown",
+      custAddress: order.custAddress || "Unknown",
+      custPhone: order.customerId?.phone || "Unknown",
       restaurantName: order.restaurantId?.userId?.name || "Unknown",
       restDetailAddress: order.restaurantId?.detailAddress || "Unknown",
       restProvinceId: order.restaurantId?.provinceId || "Unknown",

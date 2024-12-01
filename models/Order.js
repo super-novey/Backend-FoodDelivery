@@ -8,7 +8,9 @@ const OrderSchema = new Schema({
     ref: "User",
     required: true,
   },
-
+  custAddress: {
+    type: String,
+  },
   restaurantId: {
     type: Schema.Types.ObjectId,
     ref: "UpdatedPartner",
