@@ -6,10 +6,7 @@ const OrderController = require("../controllers/OrderController");
 router.post("/", OrderController.createOrder);
 
 // Route for getting all orders
-router.get("/", OrderController.getAllOrders);
-
-// Route for getting all orders filtered by status
-// router.get("/status", OrderController.getOrdersByStatus);
+// router.get("/", OrderController.getAllOrders);
 
 // Route for getting all orders by a customer ID
 router.get("/customer/:customerId", OrderController.getOrdersByCustomerId);

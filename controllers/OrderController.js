@@ -17,7 +17,7 @@ const createOrder = AsyncHandler(async (req, res) => {
 
     const detailOrder = await OrderService.getOrderById(newOrder._id);
 
-    console.log();
+    // console.log(newOrder);
 
     io.emit("order:new", detailOrder);
 
@@ -223,40 +223,6 @@ const getOrderById = AsyncHandler(async (req, res) => {
         .status(StatusCodes.NOT_FOUND)
         .json(ApiResponse("Order not found", null, StatusCodes.NOT_FOUND));
     }
-
-    // const orderDetails = {
-    //   id: order._id,
-    //   customerName: order.customerId?.name || "Unknown",
-    //   custAddress: order.custAddress || "Unknown",
-    //   custPhone: order.customerId?.phone || "Unknown",
-    //   restaurantName: order.restaurantId?.userId?.name || "Unknown",
-    //   restDetailAddress: order.restaurantId?.detailAddress || "Unknown",
-    //   restProvinceId: order.restaurantId?.provinceId || "Unknown",
-    //   restDistrictId: order.restaurantId?.districtId || "Unknown",
-    //   restCommuneId: order.restaurantId?.communeId || "Unknown",
-    //   driverName: order.assignedShipperId?.userId?.name || "Unknown",
-    //   driverPhone: order.assignedShipperId?.userId?.phone || "Unknown",
-    //   driverLicensePlate: order.assignedShipperId?.licensePlate || "Unknown",
-    //   driverProfileUrl: order.assignedShipperId?.profileUrl || "Unknown",
-    //   custShipperRating: order.custShipperRating,
-    //   custResRating: order.custResRating,
-    //   deliveryFee: order.deliveryFee,
-    //   orderDatetime: order.orderDatetime,
-    //   note: order.note,
-    //   reason: order.reason || "",
-    //   custStatus: order.custStatus,
-    //   driverStatus: order.driverStatus,
-    //   restStatus: order.restStatus,
-
-    //   orderItems: order.orderItems.map((item) => ({
-    //     itemName: item.itemId?.itemName || "Unknown",
-    //     quantity: item.quantity,
-    //     price: item.price,
-    //     totalPrice: item.totalPrice,
-    //     id: item._id,
-    //   })),
-    //   totalPrice: order.totalPrice,
-    // };
 
     res
       .status(StatusCodes.OK)
