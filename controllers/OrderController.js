@@ -17,7 +17,6 @@ const createOrder = AsyncHandler(async (req, res) => {
 
     const detailOrder = await OrderService.getOrderById(newOrder._id);
 
-    // console.log(newOrder);
 
     io.emit("order:new", detailOrder);
 
@@ -55,6 +54,12 @@ const updateOrderStatus = AsyncHandler(async (req, res) => {
       orderId,
       statusUpdates
     );
+
+    const io = getIO();
+
+    const detailOrder = await OrderService.getOrderById(updatedOrder._id);
+
+    io.emit("order:new", detailOrder);
 
     res
       .status(StatusCodes.OK)
@@ -174,7 +179,6 @@ const getOrdersByCustomerId = AsyncHandler(async (req, res) => {
       );
   }
 });
-
 
 const getOrdersByPartnerId = AsyncHandler(async (req, res) => {
   const { restaurantId } = req.params;
@@ -350,6 +354,41 @@ const getAllOrders = AsyncHandler(async (req, res) => {
   }
 });
 
+const getOrderByPartnerStatus = AsyncHandler(async (req, res) => {
+  const { partnerId, status } = req.query;
+
+  if (!partnerId || !status) {
+    return res
+      .status(StatusCodes.BAD_REQUEST)
+      .json(
+        ApiResponse(
+          "partnerId and status are required.",
+          null,
+          StatusCodes.BAD_REQUEST
+        )
+      );
+  }
+  const orders = await OrderService.getOrderByPartnerStatus(partnerId, status);
+
+  if (!orders || orders.length === 0) {
+    return res
+      .status(StatusCodes.NOT_FOUND)
+      .json(
+        ApiResponse(
+          "No orders found for the given partnerId and status.",
+          null,
+          StatusCodes.NOT_FOUND
+        )
+      );
+  }
+
+  return res
+    .status(StatusCodes.OK)
+    .json(
+      ApiResponse("Orders retrieved successfully.", orders, StatusCodes.OK)
+    );
+});
+
 module.exports = {
   createOrder,
   updateOrder,
@@ -361,4 +400,5 @@ module.exports = {
   getAllOrders,
   getOrderById,
   getOrdersByDriverId,
+  getOrderByPartnerStatus,
 };

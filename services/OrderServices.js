@@ -79,10 +79,24 @@ const getOrdersByCustomerId = async (customerId) => {
 
 const getOrdersByPartnerId = async (restaurantId) => {
   try {
-    const orders = await Order.find({ restaurantId })
-      .populate({ path: "restaurantId", select: "userId detailAddress provinceId districtId communeId", populate: { path: "userId", select: "name" } })
-      .populate({ path: "orderItems.itemId", select: "itemName" })
-      .populate({ path: "assignedShipperId", select: "userId licensePlate profileUrl", populate: { path: "userId", select: "name phone" } });
+
+    const orders = await Order.find({ restaurantId: restaurantId })
+      .populate({ path: "restaurantId", select: "name phone" })
+      .populate({
+        path: "restaurantId",
+        select: "userId detailAddress provinceId districtId communeId",
+        populate: { path: "userId", select: "name" },
+      })
+      .populate({
+        path: "orderItems.itemId",
+        select: "itemName",
+      })
+      .populate({
+        path: "assignedShipperId",
+        select: "userId licensePlate profileUrl",
+        populate: { path: "userId", select: "name phone" },
+      });
+
 
     if (!orders || orders.length === 0) throw new Error("No orders found for this restaurant.");
     return formatOrdersDetails(orders);
@@ -116,13 +130,39 @@ const getOrdersByDriverStatus = async (status) => {
   }
 };
 
+const getOrderByPartnerStatus = async (partnerId, status) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(partnerId)) {
+      throw new Error("Invalid restaurantId format");
+    }
+    const order = await Order.find({
+      restaurantId: partnerId,
+      restStatus: status,
+      assignedShipperId: { $ne: null },
+    });
+    if (!order || order.length === 0) throw new Error("Order not found!");
+
+    const detailedOrders = [];
+    for (let x of order) {
+      const detail = await getOrderById(x._id);
+      detailedOrders.push(detail);
+    }
+
+    return detailedOrders;
+  } catch (e) {
+    throw e;
+  }
+};
+
 const getOrderById = async (orderId) => {
   try {
     const order = await Order.findById(orderId)
       .populate({ path: "customerId", select: "name phone" })
+
       .populate({ path: "restaurantId", select: "userId detailAddress provinceId districtId communeId", populate: { path: "userId", select: "name" } })
       .populate({ path: "orderItems.itemId", select: "itemName" })
       .populate({ path: "assignedShipperId", select: "userId assignedShipperId licensePlate profileUrl", populate: { path: "userId", select: "name phone" } });
+
 
     if (!order) throw new Error("Order not found");
     return formatOrderDetails(order);
@@ -205,4 +245,6 @@ module.exports = {
   getOrderDetails,
   getOrdersByDriverStatus,
   getOrderById,
+  getOrderByPartnerStatus,
+
 };
