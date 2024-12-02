@@ -17,6 +17,7 @@ const createOrder = AsyncHandler(async (req, res) => {
 
     const detailOrder = await OrderService.getOrderById(newOrder._id);
 
+
     io.emit("order:new", detailOrder);
 
     res
