@@ -314,6 +314,7 @@ const getOrderByPartnerStatus = async (partnerId, status) => {
     const order = await Order.find({
       restaurantId: partnerId,
       restStatus: status,
+      assignedShipperId: { $ne: null },
     });
     if (!order || order.length === 0) throw new Error("Order not found!");
 
@@ -356,11 +357,13 @@ const getOrderById = async (orderId) => {
       customerName: order.customerId?.name || "Unknown",
       custAddress: order.custAddress || "Unknown",
       custPhone: order.customerId?.phone || "Unknown",
+      restaurantId: order.restaurantId?._id || "Unknown",
       restaurantName: order.restaurantId?.userId?.name || "Unknown",
       restDetailAddress: order.restaurantId?.detailAddress || "Unknown",
       restProvinceId: order.restaurantId?.provinceId || "Unknown",
       restDistrictId: order.restaurantId?.districtId || "Unknown",
       restCommuneId: order.restaurantId?.communeId || "Unknown",
+      assignedShipperId: order.assignedShipperId?._id,
       driverName: order.assignedShipperId?.userId?.name || "Unknown",
       driverPhone: order.assignedShipperId?.userId?.phone || "Unknown",
       driverLicensePlate: order.assignedShipperId?.licensePlate || "Unknown",

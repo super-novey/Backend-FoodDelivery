@@ -54,6 +54,12 @@ const updateOrderStatus = AsyncHandler(async (req, res) => {
       statusUpdates
     );
 
+    const io = getIO();
+
+    const detailOrder = await OrderService.getOrderById(updatedOrder._id);
+
+    io.emit("order:new", detailOrder);
+
     res
       .status(StatusCodes.OK)
       .json(
