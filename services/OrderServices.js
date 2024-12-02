@@ -198,7 +198,6 @@ const getOrdersByCustomerId = async (customerId) => {
 
 const getOrdersByPartnerId = async (restaurantId) => {
   try {
-    console.log(restaurantId);
     const orders = await Order.find({ restaurantId: restaurantId })
       .populate({ path: "restaurantId", select: "name phone" })
       .populate({
@@ -261,8 +260,6 @@ const getOrdersByPartnerId = async (restaurantId) => {
   }
 };
 
-
-
 const getOrderDetails = async (orderId) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(orderId)) {
@@ -306,6 +303,29 @@ const getOrdersByDriverStatus = async (status) => {
   } catch (error) {
     console.error("Error fetching orders by status:", error.message);
     throw error;
+  }
+};
+
+const getOrderByPartnerStatus = async (partnerId, status) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(partnerId)) {
+      throw new Error("Invalid restaurantId format");
+    }
+    const order = await Order.find({
+      restaurantId: partnerId,
+      restStatus: status,
+    });
+    if (!order || order.length === 0) throw new Error("Order not found!");
+
+    const detailedOrders = [];
+    for (let x of order) {
+      const detail = await getOrderById(x._id);
+      detailedOrders.push(detail);
+    }
+
+    return detailedOrders;
+  } catch (e) {
+    throw e;
   }
 };
 
@@ -393,4 +413,5 @@ module.exports = {
   updateOrderStatus,
   getOrderById,
   getOrdersByDriverId,
+  getOrderByPartnerStatus,
 };
