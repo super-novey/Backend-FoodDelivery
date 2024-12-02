@@ -159,6 +159,7 @@ const getOrdersByCustomerId = async (customerId) => {
       return {
         id: order._id,
         customerName: order.customerId?.name || "Unknown",
+        custAddress: order.custAddress || "Unknown",
         custPhone: order.customerId?.phone || "Unknown",
         restaurantName: order.restaurantId?.userId?.name || "Unknown",
         restDetailAddress: order.restaurantId?.detailAddress || "Unknown",
