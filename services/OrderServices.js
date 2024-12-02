@@ -199,7 +199,6 @@ const getOrdersByCustomerId = async (customerId) => {
 
 const getOrdersByPartnerId = async (restaurantId) => {
   try {
-    console.log(restaurantId);
     const orders = await Order.find({ restaurantId: restaurantId })
       .populate({ path: "restaurantId", select: "name phone" })
       .populate({
@@ -262,8 +261,6 @@ const getOrdersByPartnerId = async (restaurantId) => {
   }
 };
 
-
-
 const getOrderDetails = async (orderId) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(orderId)) {
@@ -310,6 +307,30 @@ const getOrdersByDriverStatus = async (status) => {
   }
 };
 
+const getOrderByPartnerStatus = async (partnerId, status) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(partnerId)) {
+      throw new Error("Invalid restaurantId format");
+    }
+    const order = await Order.find({
+      restaurantId: partnerId,
+      restStatus: status,
+      assignedShipperId: { $ne: null },
+    });
+    if (!order || order.length === 0) throw new Error("Order not found!");
+
+    const detailedOrders = [];
+    for (let x of order) {
+      const detail = await getOrderById(x._id);
+      detailedOrders.push(detail);
+    }
+
+    return detailedOrders;
+  } catch (e) {
+    throw e;
+  }
+};
+
 const getOrderById = async (orderId) => {
   try {
     const order = await Order.findById(orderId)
@@ -337,11 +358,13 @@ const getOrderById = async (orderId) => {
       customerName: order.customerId?.name || "Unknown",
       custAddress: order.custAddress || "Unknown",
       custPhone: order.customerId?.phone || "Unknown",
+      restaurantId: order.restaurantId?._id || "Unknown",
       restaurantName: order.restaurantId?.userId?.name || "Unknown",
       restDetailAddress: order.restaurantId?.detailAddress || "Unknown",
       restProvinceId: order.restaurantId?.provinceId || "Unknown",
       restDistrictId: order.restaurantId?.districtId || "Unknown",
       restCommuneId: order.restaurantId?.communeId || "Unknown",
+      assignedShipperId: order.assignedShipperId?._id,
       driverName: order.assignedShipperId?.userId?.name || "Unknown",
       driverPhone: order.assignedShipperId?.userId?.phone || "Unknown",
       driverLicensePlate: order.assignedShipperId?.licensePlate || "Unknown",
@@ -394,4 +417,5 @@ module.exports = {
   updateOrderStatus,
   getOrderById,
   getOrdersByDriverId,
+  getOrderByPartnerStatus,
 };
