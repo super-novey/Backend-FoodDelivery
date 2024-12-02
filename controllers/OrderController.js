@@ -127,7 +127,30 @@ const getOrderDetails = AsyncHandler(async (req, res) => {
   }
 });
 
-// Get all orders for a customer
+const getOrdersByDriverId = AsyncHandler(async (req, res) => {
+  const { driverId } = req.params;
+
+  try {
+    const orders = await OrderService.getOrdersByDriverId(driverId);
+
+    res
+      .status(StatusCodes.OK)
+      .json(
+        ApiResponse("Orders retrieved successfully", orders, StatusCodes.OK)
+      );
+  } catch (error) {
+    res
+      .status(StatusCodes.NOT_FOUND)
+      .json(
+        ApiResponse(
+          "No orders found for this customer",
+          null,
+          StatusCodes.NOT_FOUND
+        )
+      );
+  }
+});
+
 const getOrdersByCustomerId = AsyncHandler(async (req, res) => {
   const { customerId } = req.params;
 
@@ -152,11 +175,12 @@ const getOrdersByCustomerId = AsyncHandler(async (req, res) => {
   }
 });
 
-const getOrdersByPartnerId = AsyncHandler(async (req, res) => {
-  const { partnerId } = req.params;
 
+const getOrdersByPartnerId = AsyncHandler(async (req, res) => {
+  const { restaurantId } = req.params;
+  console.log(restaurantId);
   try {
-    const orders = await OrderService.getOrdersByPartnerId(partnerId);
+    const orders = await OrderService.getOrdersByPartnerId(restaurantId);
 
     res
       .status(StatusCodes.OK)
@@ -168,7 +192,7 @@ const getOrdersByPartnerId = AsyncHandler(async (req, res) => {
       .status(StatusCodes.NOT_FOUND)
       .json(
         ApiResponse(
-          "No orders found for this partner",
+          "No orders found for this restaurant",
           null,
           StatusCodes.NOT_FOUND
         )
@@ -370,4 +394,5 @@ module.exports = {
   getOrdersByDriverStatus,
   getAllOrders,
   getOrderById,
+  getOrdersByDriverId,
 };
