@@ -17,6 +17,9 @@ router.get("/customer/:customerId", OrderController.getOrdersByCustomerId);
 //  Route for getting all orders by a partner ID
 router.get("/partner/:partnerId", OrderController.getOrdersByPartnerId);
 
+
+router.get("/driver/:driverId", OrderController.getOrdersByDriverId);
+
 // Route for getting order details by ID
 router.get("/:orderId", OrderController.getOrderById);
 

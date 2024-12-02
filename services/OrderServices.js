@@ -16,6 +16,7 @@ const createOrder = async (orderData) => {
     throw error;
   }
 };
+
 const updateOrderStatus = async (orderId, statusUpdates) => {
   try {
     const validStatuses = ["custStatus", "driverStatus", "restStatus"];
@@ -67,6 +68,201 @@ const updateOrder = async (orderId, orderUpdates) => {
   }
 };
 
+const getOrdersByDriverId = async (driverId) => {
+  try {
+    const orders = await Order.find({ assignedShipperId: driverId })
+      .populate({ path: "customerId", select: "name phone" })
+      .populate({
+        path: "restaurantId",
+        select: "userId detailAddress provinceId districtId communeId",
+        populate: { path: "userId", select: "name" },
+      })
+      .populate({
+        path: "orderItems.itemId",
+        select: "itemName",
+      })
+      .populate({
+        path: "assignedShipperId",
+        select: "userId licensePlate profileUrl",
+        populate: { path: "userId", select: "name phone" },
+      });
+
+    if (!orders || orders.length === 0) {
+      throw new Error("No orders found for this driver.");
+    }
+
+    const ordersDetails = orders.map((order) => {
+      return {
+        id: order._id,
+        customerName: order.customerId?.name || "Unknown",
+        custPhone: order.customerId?.phone || "Unknown",
+        restaurantName: order.restaurantId?.userId?.name || "Unknown",
+        restDetailAddress: order.restaurantId?.detailAddress || "Unknown",
+        restProvinceId: order.restaurantId?.provinceId || "Unknown",
+        restDistrictId: order.restaurantId?.districtId || "Unknown",
+        restCommuneId: order.restaurantId?.communeId || "Unknown",
+        driverName: order.assignedShipperId?.userId?.name || "Unknown",
+        driverPhone: order.assignedShipperId?.userId?.phone || "Unknown",
+        driverLicensePlate: order.assignedShipperId?.licensePlate || "Unknown",
+        driverProfileUrl: order.assignedShipperId?.profileUrl || "Unknown",
+        custShipperRating: order.custShipperRating,
+        custResRating: order.custResRating,
+        deliveryFee: order.deliveryFee,
+        orderDatetime: order.orderDatetime,
+        note: order.note,
+        reason: order.reason || "",
+        custStatus: order.custStatus,
+        driverStatus: order.driverStatus,
+        restStatus: order.restStatus,
+        orderItems: order.orderItems.map((item) => ({
+          itemName: item.itemId?.itemName || "Unknown",
+          quantity: item.quantity,
+          price: item.price,
+          totalPrice: item.totalPrice,
+          id: item._id,
+        })),
+        totalPrice: order.totalPrice,
+      };
+    });
+
+    return ordersDetails;
+  } catch (error) {
+    console.error("Error fetching orders by driver ID:", error.message);
+    throw error;
+  }
+};
+
+const getOrdersByCustomerId = async (customerId) => {
+  try {
+    const orders = await Order.find({ customerId: customerId })
+      .populate({ path: "customerId", select: "name phone" })
+      .populate({
+        path: "restaurantId",
+        select: "userId detailAddress provinceId districtId communeId",
+        populate: { path: "userId", select: "name" },
+      })
+      .populate({
+        path: "orderItems.itemId",
+        select: "itemName",
+      })
+      .populate({
+        path: "assignedShipperId",
+        select: "userId licensePlate profileUrl",
+        populate: { path: "userId", select: "name phone" },
+      });
+
+    if (!orders || orders.length === 0) {
+      throw new Error("No orders found for this driver.");
+    }
+
+    const ordersDetails = orders.map((order) => {
+      return {
+        id: order._id,
+        customerName: order.customerId?.name || "Unknown",
+        custPhone: order.customerId?.phone || "Unknown",
+        restaurantName: order.restaurantId?.userId?.name || "Unknown",
+        restDetailAddress: order.restaurantId?.detailAddress || "Unknown",
+        restProvinceId: order.restaurantId?.provinceId || "Unknown",
+        restDistrictId: order.restaurantId?.districtId || "Unknown",
+        restCommuneId: order.restaurantId?.communeId || "Unknown",
+        driverName: order.assignedShipperId?.userId?.name || "Unknown",
+        driverPhone: order.assignedShipperId?.userId?.phone || "Unknown",
+        driverLicensePlate: order.assignedShipperId?.licensePlate || "Unknown",
+        driverProfileUrl: order.assignedShipperId?.profileUrl || "Unknown",
+        custShipperRating: order.custShipperRating,
+        custResRating: order.custResRating,
+        deliveryFee: order.deliveryFee,
+        orderDatetime: order.orderDatetime,
+        note: order.note,
+        reason: order.reason || "",
+        custStatus: order.custStatus,
+        driverStatus: order.driverStatus,
+        restStatus: order.restStatus,
+        orderItems: order.orderItems.map((item) => ({
+          itemName: item.itemId?.itemName || "Unknown",
+          quantity: item.quantity,
+          price: item.price,
+          totalPrice: item.totalPrice,
+          id: item._id,
+        })),
+        totalPrice: order.totalPrice,
+      };
+    });
+
+    return ordersDetails;
+  } catch (error) {
+    console.error("Error fetching orders by driver ID:", error.message);
+    throw error;
+  }
+};
+
+const getOrdersByPartnerId = async (restaurantId) => {
+  try {
+    console.log(restaurantId);
+    const orders = await Order.find({ restaurantId: restaurantId })
+      .populate({ path: "restaurantId", select: "name phone" })
+      .populate({
+        path: "restaurantId",
+        select: "userId detailAddress provinceId districtId communeId",
+        populate: { path: "userId", select: "name" },
+      })
+      .populate({
+        path: "orderItems.itemId",
+        select: "itemName",
+      })
+      .populate({
+        path: "assignedShipperId",
+        select: "userId licensePlate profileUrl",
+        populate: { path: "userId", select: "name phone" },
+      });
+
+    if (!orders || orders.length === 0) {
+      throw new Error("No orders found for this restaurant.");
+    }
+
+    const ordersDetails = orders.map((order) => {
+      return {
+        id: order._id,
+        customerName: order.customerId?.name || "Unknown",
+        custPhone: order.customerId?.phone || "Unknown",
+        restaurantName: order.restaurantId?.userId?.name || "Unknown",
+        restDetailAddress: order.restaurantId?.detailAddress || "Unknown",
+        restProvinceId: order.restaurantId?.provinceId || "Unknown",
+        restDistrictId: order.restaurantId?.districtId || "Unknown",
+        restCommuneId: order.restaurantId?.communeId || "Unknown",
+        driverName: order.assignedShipperId?.userId?.name || "Unknown",
+        driverPhone: order.assignedShipperId?.userId?.phone || "Unknown",
+        driverLicensePlate: order.assignedShipperId?.licensePlate || "Unknown",
+        driverProfileUrl: order.assignedShipperId?.profileUrl || "Unknown",
+        custShipperRating: order.custShipperRating,
+        custResRating: order.custResRating,
+        deliveryFee: order.deliveryFee,
+        orderDatetime: order.orderDatetime,
+        note: order.note,
+        reason: order.reason || "",
+        custStatus: order.custStatus,
+        driverStatus: order.driverStatus,
+        restStatus: order.restStatus,
+        orderItems: order.orderItems.map((item) => ({
+          itemName: item.itemId?.itemName || "Unknown",
+          quantity: item.quantity,
+          price: item.price,
+          totalPrice: item.totalPrice,
+          id: item._id,
+        })),
+        totalPrice: order.totalPrice,
+      };
+    });
+
+    return ordersDetails;
+  } catch (error) {
+    console.error("Error fetching orders by partner ID:", error.message);
+    throw error;
+  }
+};
+
+
+
 const getOrderDetails = async (orderId) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(orderId)) {
@@ -85,49 +281,6 @@ const getOrderDetails = async (orderId) => {
   } catch (error) {
     console.error("Error fetching order details:", error.message);
     throw error;
-  }
-};
-
-const getOrdersByCustomerId = async (customerId) => {
-  try {
-    const orders = await Order.find({ customer_id: customerId }).populate(
-      "restaurant_id assigned_shipper_id"
-    );
-
-    if (!orders || orders.length === 0) {
-      throw new Error("No orders found for this customer");
-    }
-
-    return orders;
-  } catch (error) {
-    console.error("Error fetching orders by customer:", error.message);
-    throw error;
-  }
-};
-
-const getOrdersByPartnerId = async (partnerId) => {
-  try {
-    const orders = await Order.find({
-      restaurantId: partnerId,
-      assignedShipperId: { $ne: null },
-    })
-      .populate({ path: "customerId", select: "name" })
-      .populate({
-        path: "assignedShipperId",
-        select: "userId",
-        populate: { path: "userId", select: "name" },
-      })
-      .populate({
-        path: "orderItems.itemId",
-        select: "itemName",
-      });
-    if (!orders || orders.length === 0) {
-      throw new Error("No orders found for this partner");
-    }
-
-    return orders;
-  } catch (e) {
-    throw e;
   }
 };
 
@@ -239,4 +392,5 @@ module.exports = {
   getAllOrders,
   updateOrderStatus,
   getOrderById,
+  getOrdersByDriverId,
 };
