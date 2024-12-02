@@ -173,7 +173,7 @@ const searchItemsByName = async (query, status) => {
   }
 };
 
-const getItemByCategory = async (keySearch) => {
+const getItemByCategory = async (keySearch, status) => {
   try {
     if (typeof keySearch !== 'string') {
       keySearch = String(keySearch); 
@@ -182,6 +182,7 @@ const getItemByCategory = async (keySearch) => {
 
     const items = await Item.find({
       keySearch: { $regex: keySearch, $options: 'i' }, 
+      status
     });
 
     if (!items || items.length === 0) {

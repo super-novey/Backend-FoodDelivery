@@ -292,7 +292,7 @@ const getItemByCategoryInHome = AsyncHandler(async (req, res) => {
   }
 
   try {
-    const items = await ItemServices.getItemByCategory(keySearch);
+    const items = await ItemServices.getItemByCategory(keySearch, true);
 
     if (items.length === 0) {
       return res.status(StatusCodes.NOT_FOUND).json(
