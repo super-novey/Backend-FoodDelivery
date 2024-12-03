@@ -198,6 +198,7 @@ const getOrdersByCustomerId = async (customerId) => {
 
 const getOrdersByPartnerId = async (restaurantId) => {
   try {
+
     const orders = await Order.find({ restaurantId: restaurantId })
       .populate({ path: "restaurantId", select: "name phone" })
       .populate({
@@ -214,6 +215,7 @@ const getOrdersByPartnerId = async (restaurantId) => {
         select: "userId licensePlate profileUrl",
         populate: { path: "userId", select: "name phone" },
       });
+
 
     if (!orders || orders.length === 0) {
       throw new Error("No orders found for this restaurant.");
@@ -252,6 +254,7 @@ const getOrdersByPartnerId = async (restaurantId) => {
         totalPrice: order.totalPrice,
       };
     });
+
 
     return ordersDetails;
   } catch (error) {
@@ -330,10 +333,35 @@ const getOrderByPartnerStatus = async (partnerId, status) => {
   }
 };
 
+const getOrderByPartnerStatus = async (partnerId, status) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(partnerId)) {
+      throw new Error("Invalid restaurantId format");
+    }
+    const order = await Order.find({
+      restaurantId: partnerId,
+      restStatus: status,
+      assignedShipperId: { $ne: null },
+    });
+    if (!order || order.length === 0) throw new Error("Order not found!");
+
+    const detailedOrders = [];
+    for (let x of order) {
+      const detail = await getOrderById(x._id);
+      detailedOrders.push(detail);
+    }
+
+    return detailedOrders;
+  } catch (e) {
+    throw e;
+  }
+};
+
 const getOrderById = async (orderId) => {
   try {
     const order = await Order.findById(orderId)
       .populate({ path: "customerId", select: "name phone" })
+
       .populate({
         path: "restaurantId",
         select: "userId detailAddress provinceId districtId communeId",
@@ -389,6 +417,7 @@ const getOrderById = async (orderId) => {
     };
 
     return orderDetails;
+
   } catch (error) {
     console.error("Error fetching order by ID:", error.message);
     throw error;
@@ -418,3 +447,4 @@ module.exports = {
   getOrdersByDriverId,
   getOrderByPartnerStatus,
 };
+
