@@ -111,6 +111,7 @@ const getOrdersByDriverId = async (driverId) => {
         driverProfileUrl: order.assignedShipperId?.profileUrl || "Unknown",
         custShipperRating: order.custShipperRating,
         custResRating: order.custResRating,
+        custAddress: order.custAddress || "Unknown",
         deliveryFee: order.deliveryFee,
         orderDatetime: order.orderDatetime,
         note: order.note,
