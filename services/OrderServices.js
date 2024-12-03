@@ -447,6 +447,84 @@ const updateRating = async (orderId, updates) => {
     throw error;
   }
 }
+const getRatingsByItem = async (itemId) => {
+  try {
+    const orders = await Order.find({
+      "orderItems.itemId._id": itemId,  
+      custResRating: { $ne: null },
+    }).populate({ path: "customerId", select: "name phone" })
+
+    if (!orders || orders.length === 0) {
+      throw new Error("No orders found with the specified item.");
+    }
+
+    const ratings = orders.map((order) => ({
+      orderId: order._id,
+      custResRating: order.custResRating,
+      custResRatingComment: order.custResRatingComment,
+      customerName: order.customerId?.name || "Unknown",
+      custShipperRatingComment: order.custShipperRatingComment,
+      custShipperRating: order.custShipperRating,
+      orderDatetime: order.orderDatetime,
+    }));
+
+    return ratings;
+  } catch (error) {
+    throw new Error(`Error retrieving ratings: ${error.message}`);
+  }
+};
+const getRatingsByRestaurant = async (restaurantId) => {
+  try {
+    const orders = await Order.find({
+      restaurantId: restaurantId,  
+      custResRating: { $ne: null },
+    }).populate({ path: "customerId", select: "name phone" }) 
+
+    if (!orders || orders.length === 0) {
+      throw new Error("No orders found for the specified restaurant.");
+    }
+
+    const ratings = orders.map((order) => ({
+      orderId: order._id,
+      custResRating: order.custResRating,
+      custResRatingComment: order.custResRatingComment,
+      customerName: order.customerId?.name || "Unknown",
+      custShipperRatingComment: order.custShipperRatingComment,
+      custShipperRating: order.custShipperRating,
+      orderDatetime: order.orderDatetime,
+    }));
+
+    return ratings;
+  } catch (error) {
+    throw new Error(`Error retrieving ratings: ${error.message}`);
+  }
+};
+const getRatingsByDriver = async (assignedShipperId) => {
+  try {
+    const orders = await Order.find({
+      assignedShipperId: assignedShipperId,  
+      custShipperRating: { $ne: null },
+    }).populate({ path: "customerId", select: "name phone" }) 
+
+    if (!orders || orders.length === 0) {
+      throw new Error("No orders found for the specified restaurant.");
+    }
+
+    const ratings = orders.map((order) => ({
+      orderId: order._id,
+      custResRating: order.custResRating,
+      custResRatingComment: order.custResRatingComment,
+      customerName: order.customerId?.name || "Unknown",
+      custShipperRatingComment: order.custShipperRatingComment,
+      custShipperRating: order.custShipperRating,
+      orderDatetime: order.orderDatetime,
+    }));
+
+    return ratings;
+  } catch (error) {
+    throw new Error(`Error retrieving ratings: ${error.message}`);
+  }
+};
 module.exports = {
   createOrder,
   updateOrder,
@@ -459,5 +537,8 @@ module.exports = {
   getOrderById,
   getOrdersByDriverId,
   getOrderByPartnerStatus,
-  updateRating
+  updateRating,
+  getRatingsByItem,
+  getRatingsByRestaurant,
+  getRatingsByDriver
 };
