@@ -18,7 +18,13 @@ router.get("/:itemId", ItemController.getItemById);
 router.get("/category/:categoryId", ItemController.getItemsByCategory);
 router.put("/delete/:id", ItemController.deleteItem);
 router.get("/customer/search", ItemController.searchItemsByName);
-router.get("/customer/category/:categoryId", ItemController.getItemsByCategoryInCustomer);
+router.get(
+  "/customer/category/:categoryId",
+  ItemController.getItemsByCategoryInCustomer
+);
 router.get("/customer/home", ItemController.getItemByCategoryInHome);
+
+router.patch("/:id/quantity", ItemController.decreaseQuantity);
+router.patch("/:id/sales", ItemController.increaseSales);
 
 module.exports = router;

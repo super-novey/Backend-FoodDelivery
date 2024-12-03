@@ -116,18 +116,6 @@ const updateItem = async (
   }
 };
 
-// const deleteItem = async (id) => {
-//   try {
-//     const deletedItem = await Item.findByIdAndDelete(id);
-//     if (!deletedItem) {
-//       return null;
-//     }
-//     return deletedItem;
-//   } catch (e) {
-//     throw new Error(e);
-//   }
-// };
-
 const deleteItem = async (id) => {
   try {
     const deletedItem = await Item.findByIdAndUpdate(
@@ -175,14 +163,14 @@ const searchItemsByName = async (query, status) => {
 
 const getItemByCategory = async (keySearch, status) => {
   try {
-    if (typeof keySearch !== 'string') {
-      keySearch = String(keySearch); 
+    if (typeof keySearch !== "string") {
+      keySearch = String(keySearch);
     }
     console.log("keySearch:", keySearch);
 
     const items = await Item.find({
-      keySearch: { $regex: keySearch, $options: 'i' }, 
-      status
+      keySearch: { $regex: keySearch, $options: "i" },
+      status,
     });
 
     if (!items || items.length === 0) {
@@ -197,6 +185,19 @@ const getItemByCategory = async (keySearch, status) => {
   }
 };
 
+const updateQuantity = async (itemId, newSales) => {
+  try {
+    const updatedItem = await Item.findByIdAndUpdate(
+      id,
+      { sales },
+      { new: true, runValidators: true }
+    );
+  } catch (error) {
+    console.error("Error updating sales item: ", error.message);
+    throw error;
+  }
+};
+
 module.exports = {
   getItemsByCategoryId,
   createNewItem,
@@ -205,5 +206,5 @@ module.exports = {
   updateItem,
   searchItemsByName,
   getItemsByCategoryIdInCustomer,
-  getItemByCategory
+  getItemByCategory,
 };

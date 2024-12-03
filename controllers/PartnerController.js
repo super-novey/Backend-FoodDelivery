@@ -13,7 +13,7 @@ const {
   removeFile,
 } = require("../helpers/fileHelpers");
 const Partner = require("../models/Partner");
-const { getPartnerByUserID, getDetailPartnerByPartnerId } = require("../services/PartnerServices");
+const { getPartnerByUserID, getDetailPartnerByPartnerId, updatePartnerStatus } = require("../services/PartnerServices");
 
 const createPartner = AsyncHandler(async (req, res) => {
   const { userId, description } = req.body;
@@ -82,29 +82,29 @@ const delelePartner = AsyncHandler(async (req, res) => {
     .json(ApiResponse("Partner deleted successfully.", StatusCodes.OK));
 });
 
-// const updatePartner = AsyncHandler(async (req, res) => {
-//   const { id } = req.params;
-//   const { userId, description } = req.body;
+const updateStatus = AsyncHandler(async (req, res) => {
+  const { userId } = req.params; 
+  const { status } = req.body;   
 
-//   // is partner exists
-//   const partner = await Partner.findById(id);
-//   if (!partner) {
-//     throw new ApiError("Partner is not found");
-//   }
+  if (typeof status !== 'boolean') {
+    return res.status(StatusCodes.BAD_REQUEST).json(
+      ApiResponse("Status must be a boolean.", null, StatusCodes.BAD_REQUEST)
+    );
+  }
 
-//   // An array to store new image paths
-//   let newImagePaths = [];
+  try {
+    const updatedPartner = await updatePartnerStatus(userId, status);
 
-//   // Check if files are included in the request
-//   if (req.files && Object.keys(req.files).length > 0) {
-//     if (req.files.multiple) {
-//       const imagePaths = await returnMultipleFilePath(req.files);
-//       if (imagePaths.length) {
-//         newImagePaths = await multipleFilesTransfer(imagePaths, `${userId}`);
-//       }
-//     }
-//   }
-// });
+    res.status(StatusCodes.OK).json(
+      ApiResponse("Partner status updated successfully.", updatedPartner, StatusCodes.OK)
+    );
+  } catch (error) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(
+      ApiResponse("Error updating partner status.", null, StatusCodes.INTERNAL_SERVER_ERROR)
+    );
+  }
+});
+
 const getPartnerById = async (req, res) => {
   try {
     const { id } = req.params; 
@@ -160,4 +160,4 @@ const getPartnerByPartnerId = async (req, res) => {
     });
   }
 };
-module.exports = { createPartner, delelePartner, getPartnerByUserId, getPartnerById, getPartnerByPartnerId };
+module.exports = { createPartner, delelePartner, getPartnerByUserId, getPartnerById, getPartnerByPartnerId, updateStatus };
