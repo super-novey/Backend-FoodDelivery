@@ -434,7 +434,54 @@ const updateOrderRating = AsyncHandler(async (req, res) => {
     });
   }
 });
+const getAllRatingByItem = async (req, res) => {
+  const { itemId } = req.params;
 
+  try {
+    const ratings = await OrderService.getRatingsByItem(itemId);
+
+    return res.status(200).json({
+      message: "Ratings retrieved successfully.",
+      data: ratings,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+const getAllRatingByRestaurant = async (req, res) => {
+  const { restaurantId } = req.params;
+
+  try {
+    const ratings = await OrderService.getRatingsByRestaurant(restaurantId);
+
+    return res.status(200).json({
+      message: "Ratings retrieved successfully.",
+      data: ratings,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+const getAllRatingByDriver = async (req, res) => {
+  const { assignedShipperId } = req.params;
+
+  try {
+    const ratings = await OrderService.getRatingsByDriver(assignedShipperId);
+
+    return res.status(200).json({
+      message: "Ratings retrieved successfully.",
+      data: ratings,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
 module.exports = {
   createOrder,
   updateOrder,
@@ -447,5 +494,8 @@ module.exports = {
   getOrderById,
   getOrdersByDriverId,
   getOrderByPartnerStatus,
-  updateOrderRating
+  updateOrderRating,
+  getAllRatingByItem,
+  getAllRatingByRestaurant,
+  getAllRatingByDriver
 };

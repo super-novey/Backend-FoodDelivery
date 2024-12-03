@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const fileUploader = require("../config/cloudinary.config");
 const ItemController = require("../controllers/ItemController");
+const OrderController = require("../controllers/OrderController");
 
 router.post(
   "/",
@@ -27,4 +28,5 @@ router.get("/customer/home", ItemController.getItemByCategoryInHome);
 router.patch("/:id/quantity", ItemController.decreaseQuantity);
 router.patch("/:id/sales", ItemController.increaseSales);
 
+router.get("/rating/:id", OrderController.getAllRatingByItem);
 module.exports = router;
