@@ -13,7 +13,7 @@ const {
   removeFile,
 } = require("../helpers/fileHelpers");
 
-const { getDriverByUserID } = require("../services/DriverServices");
+const { getDriverByUserID, updateDriverStatus } = require("../services/DriverServices");
 
 const createDriver = AsyncHandler(async (req, res) => {
   const { userId, licensePlate } = req.body;
@@ -166,11 +166,35 @@ const getDriverByUserId = AsyncHandler(async (req, res) => {
     .status(StatusCodes.OK)
     .json(ApiResponse("Successfully.", driver, StatusCodes.OK));
 });
+
+const updateStatus = AsyncHandler(async (req, res) => {
+  const { userId } = req.params; 
+  const { status } = req.body;   
+
+  if (typeof status !== 'boolean') {
+    return res.status(StatusCodes.BAD_REQUEST).json(
+      ApiResponse("Status must be a boolean.", null, StatusCodes.BAD_REQUEST)
+    );
+  }
+
+  try {
+    const updatedDriver = await updateDriverStatus(userId, status);
+
+    res.status(StatusCodes.OK).json(
+      ApiResponse("Driver status updated successfully.", updatedDriver, StatusCodes.OK)
+    );
+  } catch (error) {
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(
+      ApiResponse("Error updating driver status.", null, StatusCodes.INTERNAL_SERVER_ERROR)
+    );
+  }
+});
 module.exports = {
   createDriver,
   deleteDriver,
   updateDateDriver,
   getDriverByUserId,
-   getDriverById
+  getDriverById,
+   updateStatus,
 };
 

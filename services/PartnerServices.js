@@ -66,6 +66,25 @@ const getDetailPartnerByPartnerId = async (id) => {
   }
 };
 
+const updatePartnerStatus = async (partnerId, status) => {
+  try {
+    const updatedPartner = await UpdatedPartner.findOneAndUpdate(
+      { _id: partnerId }, 
+      { status },  
+      { new: true }
+    );
+    console.log(partnerId);
+
+    if (!updatedPartner) {
+      throw new Error("Partner not found.");
+    }
+
+    return updatedPartner; 
+  } catch (error) {
+    console.error("Error updating partner status:", error);
+    throw error; 
+  }
+};
 
 
-module.exports = { createPartner, getPartnerByUserID, getDetailPartnerByPartnerId };
+module.exports = { createPartner, getPartnerByUserID, getDetailPartnerByPartnerId, updatePartnerStatus };
