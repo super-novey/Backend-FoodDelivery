@@ -112,6 +112,8 @@ const getOrdersByDriverId = async (driverId) => {
         custShipperRating: order.custShipperRating,
         custResRating: order.custResRating,
         custAddress: order.custAddress || "Unknown",
+        custResRatingComment: order.custResRatingComment || "Unknown",
+        custShipperRatingComment: order.custShipperRatingComment || "Unknown",
         deliveryFee: order.deliveryFee,
         orderDatetime: order.orderDatetime,
         note: order.note,
@@ -177,6 +179,8 @@ const getOrdersByCustomerId = async (customerId) => {
         driverProfileUrl: order.assignedShipperId?.profileUrl || "Unknown",
         custShipperRating: order.custShipperRating,
         custResRating: order.custResRating,
+        custResRatingComment: order.custResRatingComment || "Unknown",
+        custShipperRatingComment: order.custShipperRatingComment || "Unknown",
         deliveryFee: order.deliveryFee,
         orderDatetime: order.orderDatetime,
         note: order.note,
@@ -240,6 +244,8 @@ const getOrdersByPartnerId = async (restaurantId) => {
         driverLicensePlate: order.assignedShipperId?.licensePlate || "Unknown",
         driverProfileUrl: order.assignedShipperId?.profileUrl || "Unknown",
         custShipperRating: order.custShipperRating,
+        custResRatingComment: order.custResRatingComment || "Unknown",
+        custShipperRatingComment: order.custShipperRatingComment || "Unknown",
         custResRating: order.custResRating,
         deliveryFee: order.deliveryFee,
         orderDatetime: order.orderDatetime,
@@ -377,6 +383,8 @@ const getOrderById = async (orderId) => {
       custShipperRating: order.custShipperRating,
       custResRating: order.custResRating,
       deliveryFee: order.deliveryFee,
+      custResRatingComment: order.custResRatingComment || "Unknown",
+      custShipperRatingComment: order.custShipperRatingComment || "Unknown",
       orderDatetime: order.orderDatetime,
       note: order.note,
       reason: order.reason || "",
@@ -412,6 +420,33 @@ const getAllOrders = async () => {
   }
 };
 
+const updateRating = async (orderId, updates) => {
+  try {
+    const order = await Order.findById(orderId);
+    if (!order) {
+      throw new Error("Order not found");
+    }
+
+    if (updates.custResRating !== undefined) {
+      order.custResRating = updates.custResRating;
+    }
+    if (updates.custResRatingComment !== undefined) {
+      order.custResRatingComment = updates.custResRatingComment;
+    }
+    if (updates.custShipperRating !== undefined) {
+      order.custShipperRating = updates.custShipperRating;
+    }
+    if (updates.custShipperRatingComment !== undefined) {
+      order.custShipperRatingComment = updates.custShipperRatingComment;
+    }
+
+    await order.save();
+    return order;
+  } catch (error) {
+    console.error("Update rating fail:", error.message);
+    throw error;
+  }
+}
 module.exports = {
   createOrder,
   updateOrder,
@@ -424,4 +459,5 @@ module.exports = {
   getOrderById,
   getOrdersByDriverId,
   getOrderByPartnerStatus,
+  updateRating
 };
