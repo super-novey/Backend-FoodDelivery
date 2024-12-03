@@ -27,6 +27,10 @@ const OrderSchema = new Schema({
     max: 5,
     default: null,
   },
+  custShipperRatingComment: {
+    type: String,
+    default: "",
+  },
   deliveryFee: {
     type: Number,
     required: true,
@@ -44,6 +48,10 @@ const OrderSchema = new Schema({
     min: 1,
     max: 5,
     default: null,
+  },
+  custResRatingComment: {
+    type: String,
+    default: "",
   },
   reason: {
     type: String,

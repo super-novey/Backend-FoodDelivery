@@ -388,6 +388,53 @@ const getOrderByPartnerStatus = AsyncHandler(async (req, res) => {
     );
 });
 
+const updateOrderRating = AsyncHandler(async (req, res) => {
+  const { orderId } = req.params;
+  const updates = req.body;
+
+  if (
+    updates.custResRating !== undefined &&
+    (updates.custResRating < 1 || updates.custResRating > 5)
+  ) {
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      message: "custResRating must be between 1 and 5",
+    });
+  }
+  if (
+    updates.custShipperRating !== undefined &&
+    (updates.custShipperRating < 1 || updates.custShipperRating > 5)
+  ) {
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      message: "custShipperRating must be between 1 and 5",
+    });
+  }
+
+  try {
+    const updatedOrder = await OrderService.updateRating(orderId, updates);
+
+    if (!updatedOrder) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json(ApiResponse("Order not found.", [], StatusCodes.NOT_FOUND));
+    }
+
+    return res
+      .status(StatusCodes.OK)
+      .json(
+        ApiResponse(
+          "Order ratings updated successfully.",
+          updatedOrder,
+          StatusCodes.OK
+        )
+      );
+  } catch (error) {
+    console.error("Error updating ratings:", error.message);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: "Failed to update order ratings.",
+    });
+  }
+});
+
 module.exports = {
   createOrder,
   updateOrder,
@@ -400,4 +447,5 @@ module.exports = {
   getOrderById,
   getOrdersByDriverId,
   getOrderByPartnerStatus,
+  updateOrderRating
 };

@@ -34,4 +34,6 @@ router.patch("/:orderId/status", OrderController.updateOrderStatus);
 // Get orders by partnerId and restStatus
 router.get("/orders/partner", OrderController.getOrderByPartnerStatus);
 
+//rating
+router.patch("/rating/:orderId", OrderController.updateOrderRating);
 module.exports = router;
