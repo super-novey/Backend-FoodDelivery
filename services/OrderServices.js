@@ -32,6 +32,10 @@ const updateOrderStatus = async (orderId, statusUpdates) => {
       updates.assignedShipperId = statusUpdates.assignedShipperId;
     }
 
+    if (statusUpdates.reason) {
+      updates.reason = statusUpdates.reason;
+    }
+
     if (Object.keys(updates).length === 0) {
       throw new Error("No valid statuses provided for update");
     }

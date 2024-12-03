@@ -39,7 +39,7 @@ const createOrder = AsyncHandler(async (req, res) => {
 
 const updateOrderStatus = AsyncHandler(async (req, res) => {
   const { orderId } = req.params;
-  const { custStatus, driverStatus, restStatus, assignedShipperId } = req.body; // Expect statuses and assignedShipperId
+  const { custStatus, driverStatus, restStatus, assignedShipperId, reason } = req.body; // Expect statuses and assignedShipperId
 
   try {
     const statusUpdates = {
@@ -47,6 +47,7 @@ const updateOrderStatus = AsyncHandler(async (req, res) => {
       ...(driverStatus && { driverStatus }),
       ...(restStatus && { restStatus }),
       ...(assignedShipperId && { assignedShipperId }),
+      ...(reason && { reason }),
     };
 
     const updatedOrder = await OrderService.updateOrderStatus(
@@ -55,7 +56,6 @@ const updateOrderStatus = AsyncHandler(async (req, res) => {
     );
 
     const io = getIO();
-
     const detailOrder = await OrderService.getOrderById(updatedOrder._id);
 
     io.emit("order:new", detailOrder);
