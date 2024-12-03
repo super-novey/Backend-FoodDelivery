@@ -27,6 +27,10 @@ const ItemSchema = Schema({
     type: Number,
   },
 
+  sales: {
+    type: Number,
+  },
+
   description: {
     type: String,
   },

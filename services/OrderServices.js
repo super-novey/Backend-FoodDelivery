@@ -384,6 +384,7 @@ const getOrderById = async (orderId) => {
       restStatus: order.restStatus,
 
       orderItems: order.orderItems.map((item) => ({
+        foodId: item.itemId._id || "",
         itemName: item.itemId?.itemName || "Unknown",
         quantity: item.quantity,
         price: item.price,

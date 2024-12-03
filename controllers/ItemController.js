@@ -283,7 +283,7 @@ const getItemsByCategoryInCustomer = AsyncHandler(async (req, res) => {
   }
 });
 const getItemByCategoryInHome = AsyncHandler(async (req, res) => {
-  const { keySearch } = req.query; 
+  const { keySearch } = req.query;
 
   if (!keySearch) {
     return res.status(StatusCodes.BAD_REQUEST).json({
@@ -295,18 +295,22 @@ const getItemByCategoryInHome = AsyncHandler(async (req, res) => {
     const items = await ItemServices.getItemByCategory(keySearch, true);
 
     if (items.length === 0) {
-      return res.status(StatusCodes.NOT_FOUND).json(
-        ApiResponse(
-          "No items found with the provided keySearch.",
-          [],
-          StatusCodes.NOT_FOUND
-        )
-      );
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json(
+          ApiResponse(
+            "No items found with the provided keySearch.",
+            [],
+            StatusCodes.NOT_FOUND
+          )
+        );
     }
 
-    return res.status(StatusCodes.OK).json(
-      ApiResponse("Items retrieved successfully.", items, StatusCodes.OK)
-    );
+    return res
+      .status(StatusCodes.OK)
+      .json(
+        ApiResponse("Items retrieved successfully.", items, StatusCodes.OK)
+      );
   } catch (error) {
     console.error("Error retrieving items:", error.message);
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
@@ -315,6 +319,56 @@ const getItemByCategoryInHome = AsyncHandler(async (req, res) => {
   }
 });
 
+const decreaseQuantity = AsyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { quantity } = req.body;
+
+  try {
+    const item = await Item.findById(id);
+
+    if (!item) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json(ApiResponse("Item not found", null, StatusCodes.NOT_FOUND));
+    }
+
+    if (item.quantity <= 0) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json(
+          ApiResponse(
+            "Quantity cannot be less than 0",
+            null,
+            StatusCodes.NOT_FOUND
+          )
+        );
+    }
+
+    item.quantity -= quantity;
+
+    await item.save();
+
+    return res
+      .status(StatusCodes.OK)
+      .json(
+        ApiResponse(
+          "Decreased item quantity successfully.",
+          item,
+          StatusCodes.OK
+        )
+      );
+  } catch (error) {
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json(
+        ApiResponse(
+          "Fail to decrease successfully.",
+          null,
+          StatusCodes.INTERNAL_SERVER_ERROR
+        )
+      );
+  }
+});
 
 module.exports = {
   addItemToCategory,
@@ -324,5 +378,6 @@ module.exports = {
   updateItemInCategory,
   searchItemsByName,
   getItemsByCategoryInCustomer,
-  getItemByCategoryInHome
+  getItemByCategoryInHome,
+  decreaseQuantity,
 };
