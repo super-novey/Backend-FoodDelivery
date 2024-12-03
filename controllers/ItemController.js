@@ -370,6 +370,41 @@ const decreaseQuantity = AsyncHandler(async (req, res) => {
   }
 });
 
+const increaseSales = AsyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { quantity } = req.body;
+
+  try {
+    const item = await Item.findById(id);
+
+    if (!item) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json(ApiResponse("Item not found", null, StatusCodes.NOT_FOUND));
+    }
+
+    item.sales += quantity;
+
+    await item.save();
+
+    return res
+      .status(StatusCodes.OK)
+      .json(
+        ApiResponse("Increased item sales successfully.", item, StatusCodes.OK)
+      );
+  } catch (error) {
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json(
+        ApiResponse(
+          "Fail to decrease successfully.",
+          null,
+          StatusCodes.INTERNAL_SERVER_ERROR
+        )
+      );
+  }
+});
+
 module.exports = {
   addItemToCategory,
   getItemById,
@@ -380,4 +415,5 @@ module.exports = {
   getItemsByCategoryInCustomer,
   getItemByCategoryInHome,
   decreaseQuantity,
+  increaseSales,
 };
