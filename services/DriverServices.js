@@ -28,8 +28,8 @@ const getDriverByUserID = async (userId) => {
   try {
     const driver = await UpdatedDriver.findOne({ userId })
       .populate({
-        path: "userId", // Reference to User model
-        model: "User", // Ensure the correct model is used for population
+        path: "userId", 
+        model: "User", 
       })
       .exec();
 
@@ -43,4 +43,23 @@ const getDriverByUserID = async (userId) => {
   }
 };
 
-module.exports = { createDriver, getDriverByUserID };
+const updateDriverStatus = async (driverId, status) => {
+  try {
+    const updatedDriver = await UpdatedDriver.findOneAndUpdate(
+      { _id: driverId }, 
+      { status },  
+      { new: true }
+    );
+
+    if (!updatedDriver) {
+      throw new Error("Driver not found.");
+    }
+
+    return updatedDriver; 
+  } catch (error) {
+    console.error("Error updating driver status:", error);
+    throw error; 
+  }
+};
+
+module.exports = { createDriver, getDriverByUserID, updateDriverStatus };
