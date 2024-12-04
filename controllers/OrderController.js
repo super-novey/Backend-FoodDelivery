@@ -3,7 +3,7 @@ const OrderService = require("../services/OrderServices");
 const { StatusCodes } = require("http-status-codes");
 const ApiResponse = require("./response/ApiResponse");
 const ApiError = require("./error/ApiError");
-const { getIO } = require("../config/socket");
+const { getIO } = require("../sockets");
 const Order = require("../models/Order");
 
 // Create a new order
@@ -13,11 +13,9 @@ const createOrder = AsyncHandler(async (req, res) => {
   try {
     const newOrder = await OrderService.createOrder(orderData);
 
-    const io = getIO();
-
-    const detailOrder = await OrderService.getOrderById(newOrder._id);
-
-    io.emit("order:new", detailOrder);
+    // const io = getIO();
+    // const detailOrder = await OrderService.getOrderById(newOrder._id);
+    // io.emit("order:new", detailOrder);
 
     res
       .status(StatusCodes.CREATED)
@@ -39,7 +37,8 @@ const createOrder = AsyncHandler(async (req, res) => {
 
 const updateOrderStatus = AsyncHandler(async (req, res) => {
   const { orderId } = req.params;
-  const { custStatus, driverStatus, restStatus, assignedShipperId, reason } = req.body; // Expect statuses and assignedShipperId
+  const { custStatus, driverStatus, restStatus, assignedShipperId, reason } =
+    req.body; // Expect statuses and assignedShipperId
 
   try {
     const statusUpdates = {

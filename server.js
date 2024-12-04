@@ -6,7 +6,7 @@ const dotenv = require("dotenv");
 const path = require("path");
 const cors = require("cors");
 const { Server } = require("socket.io");
-const { initializeSocket } = require("./config/socket");
+const { initializeSocket } = require("./sockets");
 dotenv.config();
 
 /*==============================
