@@ -525,6 +525,32 @@ const getRatingsByDriver = async (assignedShipperId) => {
     throw new Error(`Error retrieving ratings: ${error.message}`);
   }
 };
+const getRatingsByCustomer = async (customerId) => {
+  try {
+    const orders = await Order.find({
+      customerId: customerId,  
+      custResRating: { $ne: null },
+    }).populate({ path: "customerId", select: "name phone" }) 
+
+    if (!orders || orders.length === 0) {
+      throw new Error("No orders found for the specified restaurant.");
+    }
+
+    const ratings = orders.map((order) => ({
+      orderId: order._id,
+      custResRating: order.custResRating,
+      custResRatingComment: order.custResRatingComment,
+      customerName: order.customerId?.name || "Unknown",
+      custShipperRatingComment: order.custShipperRatingComment,
+      custShipperRating: order.custShipperRating,
+      orderDatetime: order.orderDatetime,
+    }));
+
+    return ratings;
+  } catch (error) {
+    throw new Error(`Error retrieving ratings: ${error.message}`);
+  }
+};
 module.exports = {
   createOrder,
   updateOrder,
@@ -540,5 +566,6 @@ module.exports = {
   updateRating,
   getRatingsByItem,
   getRatingsByRestaurant,
-  getRatingsByDriver
+  getRatingsByDriver,
+  getRatingsByCustomer
 };
