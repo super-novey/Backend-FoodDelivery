@@ -482,6 +482,22 @@ const getAllRatingByDriver = async (req, res) => {
     });
   }
 };
+const getAllRatingByCustomer = async (req, res) => {
+  const { customerId } = req.params;
+
+  try {
+    const ratings = await OrderService.getRatingsByCustomer(customerId);
+
+    return res.status(200).json({
+      message: "Ratings retrieved successfully.",
+      data: ratings,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
 module.exports = {
   createOrder,
   updateOrder,
@@ -497,5 +513,6 @@ module.exports = {
   updateOrderRating,
   getAllRatingByItem,
   getAllRatingByRestaurant,
-  getAllRatingByDriver
+  getAllRatingByDriver,
+  getAllRatingByCustomer
 };
