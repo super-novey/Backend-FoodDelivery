@@ -145,13 +145,14 @@ const getItemById = async (itemId) => {
     throw error;
   }
 };
-const searchItemsByName = async (query, status) => {
+const searchItemsByName = async (query, status, isDeleted) => {
   try {
     const normalizedQuery = removeVietnameseTones(query);
 
     const items = await Item.find({
       normalizedItemName: { $regex: normalizedQuery, $options: "i" },
       status,
+      isDeleted
     });
 
     return items;

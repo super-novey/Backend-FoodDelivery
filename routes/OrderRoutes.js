@@ -40,4 +40,5 @@ router.patch("/rating/:orderId", OrderController.updateOrderRating);
 router.get("/admin/statistics", OrderController.getOrderByStatus);
 
 router.get("/restaurants/high-rated", OrderController.getHighRatedRestaurants);
+
 module.exports = router;
