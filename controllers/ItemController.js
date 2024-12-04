@@ -220,6 +220,7 @@ const searchItemsByName = AsyncHandler(async (req, res) => {
 
     const items = await Item.find({
       status: true,
+      isDeleted: false,
       $or: [
         { itemName: { $regex: query, $options: "i" } },
         { normalizedItemName: { $regex: normalizedQuery, $options: "i" } },

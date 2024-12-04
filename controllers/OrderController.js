@@ -559,6 +559,7 @@ const getHighRatedRestaurants = async (req, res) => {
     });
   }
 };
+
 module.exports = {
   createOrder,
   updateOrder,
@@ -579,5 +580,5 @@ module.exports = {
   getDeliveryByDriver,
   getDeliveryByRestaurant,
   getOrderByStatus,
-  getHighRatedRestaurants
+  getHighRatedRestaurants,
 };

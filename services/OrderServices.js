@@ -703,7 +703,7 @@ const getRestaurantsWithHighRatings = async () => {
         },
       },
       {
-        $unwind: "$userDetails", // Flatten the userDetails array (assuming one user per restaurant)
+        $unwind: "$userDetails", 
       },
       {
         $project: {
@@ -745,5 +745,5 @@ module.exports = {
   getDeliveryStatusByDriver,
   getDeliveryStatusByRestaurant,
   getOrderStatus,
-  getRestaurantsWithHighRatings
+  getRestaurantsWithHighRatings,
 };
