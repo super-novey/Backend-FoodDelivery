@@ -498,6 +498,67 @@ const getAllRatingByCustomer = async (req, res) => {
     });
   }
 };
+const getDeliveryByDriver = async (req, res) => {
+  const { assignedShipperId } = req.params;
+
+  try {
+    const ratings = await OrderService.getDeliveryStatusByDriver(assignedShipperId);
+
+    return res.status(200).json({
+      message: "Ratings retrieved successfully.",
+      data: ratings,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+const getDeliveryByRestaurant = async (req, res) => {
+  const { restaurantId } = req.params;
+
+  try {
+    const ratings = await OrderService.getDeliveryStatusByRestaurant(restaurantId);
+
+    return res.status(200).json({
+      message: "Ratings retrieved successfully.",
+      data: ratings,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+const getOrderByStatus = async (req, res) => {
+
+  try {
+    const ratings = await OrderService.getOrderStatus();
+
+    return res.status(200).json({
+      message: "Ratings retrieved successfully.",
+      data: ratings,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+const getHighRatedRestaurants = async (req, res) => {
+  try {
+    const restaurants = await OrderService.getRestaurantsWithHighRatings();
+
+    return res.status(200).json({
+      message: "Ratings retrieved successfully.",
+      data: restaurants,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
 module.exports = {
   createOrder,
   updateOrder,
@@ -514,5 +575,9 @@ module.exports = {
   getAllRatingByItem,
   getAllRatingByRestaurant,
   getAllRatingByDriver,
-  getAllRatingByCustomer
+  getAllRatingByCustomer,
+  getDeliveryByDriver,
+  getDeliveryByRestaurant,
+  getOrderByStatus,
+  getHighRatedRestaurants
 };

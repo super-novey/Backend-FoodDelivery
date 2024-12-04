@@ -404,7 +404,19 @@ const increaseSales = AsyncHandler(async (req, res) => {
       );
   }
 });
-
+const getTopItem = async (req, res) => {
+  try {
+    const topItems = await ItemServices.getTopItems();
+    return res.status(200).json({
+      message: "Ratings retrieved successfully.",
+      data: topItems,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
 module.exports = {
   addItemToCategory,
   getItemById,
@@ -416,4 +428,5 @@ module.exports = {
   getItemByCategoryInHome,
   decreaseQuantity,
   increaseSales,
+  getTopItem
 };

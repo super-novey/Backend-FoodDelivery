@@ -18,4 +18,6 @@ router.delete("/:id", delelePartner);
 router.get("/customer/:id", getPartnerByPartnerId);
 router.put("/updateStatus/:userId", updateStatus);
 router.get("/rating/:restaurantId", OrderController.getAllRatingByRestaurant);
+router.get("/statistic/:restaurantId", OrderController.getDeliveryByRestaurant);
+
 module.exports = router;

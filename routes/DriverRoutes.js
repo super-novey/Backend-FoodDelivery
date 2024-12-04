@@ -17,5 +17,5 @@ router.delete("/:id", deleteDriver);
 router.put("/:id", updateDateDriver);
 router.put("/updateStatus/:userId", updateStatus);
 router.get("/rating/:assignedShipperId", OrderController.getAllRatingByDriver);
-
+router.get("/statistic/:assignedShipperId", OrderController.getDeliveryByDriver);
 module.exports = router;
