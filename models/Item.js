@@ -29,6 +29,7 @@ const ItemSchema = Schema({
 
   sales: {
     type: Number,
+    default: 0,
   },
 
   description: {
