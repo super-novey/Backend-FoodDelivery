@@ -39,4 +39,9 @@ module.exports = (socket, io) => {
       console.error(`Error updating order status: ${error.message}`);
     }
   });
+
+  socket.on("leaveRoom", (room) => {
+    socket.leave(room);
+    socket.emit("leftRoom", { roomId: room });
+  });
 };
