@@ -453,6 +453,37 @@ const verifyOtp = AsyncHandler(async (req, res) => {
   res.status(StatusCodes.OK).json(ApiResponse("OTP verified successfully"));
 });
 
+const changePassword = AsyncHandler(async (req, res) => {
+  const { id, oldPassword, newPassword } = req.body;
+
+  const user = await User.findById(id);
+
+  const authenticate =
+    user && (await bcrypt.compare(oldPassword, user.password));
+
+  if (!authenticate) {
+    return res
+      .status(StatusCodes.UNAUTHORIZED)
+      .json(
+        ApiResponse(
+          "Mật khẩu cũ không đúng!",
+          null,
+          StatusCodes.UNAUTHORIZED,
+          true
+        )
+      );
+  }
+  // Hash password
+  const salt = await bcrypt.genSalt();
+  const hashedPassword = await bcrypt.hash(newPassword, salt);
+  user.password = hashedPassword;
+  await user.save();
+
+  return res
+    .status(StatusCodes.OK)
+    .json(ApiResponse("Change password successfully.", user, StatusCodes.OK));
+});
+
 /**
  * @desc get currently authenticated user (login)
  * @route GET /api/v1/auth/me
@@ -492,4 +523,5 @@ module.exports = {
   resendOTP,
   driverRegister,
   partnerRegister,
+  changePassword,
 };

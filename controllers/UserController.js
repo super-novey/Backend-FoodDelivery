@@ -1,9 +1,13 @@
 const AsyncHandler = require("express-async-handler");
 const { StatusCodes } = require("http-status-codes");
+const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
+
 
 const ApiError = require("./error/ApiError");
 const ApiResponse = require("./response/ApiResponse");
 const userService = require("../services/UserServices");
+const User = require("../models/User");
 
 const loadListUser = AsyncHandler(async (req, res) => {
   try {
@@ -12,14 +16,29 @@ const loadListUser = AsyncHandler(async (req, res) => {
     if (!users || users.length === 0) {
       return res
         .status(StatusCodes.NOT_FOUND)
-        .json(ApiResponse("No users with status = true found", null, StatusCodes.NOT_FOUND));
+        .json(
+          ApiResponse(
+            "No users with status = true found",
+            null,
+            StatusCodes.NOT_FOUND
+          )
+        );
     }
 
     res
       .status(StatusCodes.OK)
-      .json(ApiResponse("Users with status = true retrieved successfully", users, StatusCodes.OK));
+      .json(
+        ApiResponse(
+          "Users with status = true retrieved successfully",
+          users,
+          StatusCodes.OK
+        )
+      );
   } catch (error) {
-    throw new ApiError("Failed to retrieve users", StatusCodes.INTERNAL_SERVER_ERROR);
+    throw new ApiError(
+      "Failed to retrieve users",
+      StatusCodes.INTERNAL_SERVER_ERROR
+    );
   }
 });
 
@@ -31,14 +50,23 @@ const loadListUserByRoleAndStatus = AsyncHandler(async (req, res) => {
     if (!users || users.length === 0) {
       return res
         .status(StatusCodes.NOT_FOUND)
-        .json(ApiResponse("No users found with the specified criteria", null, StatusCodes.NOT_FOUND));
+        .json(
+          ApiResponse(
+            "No users found with the specified criteria",
+            null,
+            StatusCodes.NOT_FOUND
+          )
+        );
     }
 
     res
       .status(StatusCodes.OK)
       .json(ApiResponse("Users retrieved successfully", users, StatusCodes.OK));
   } catch (error) {
-    throw new ApiError("Failed to retrieve users", StatusCodes.INTERNAL_SERVER_ERROR);
+    throw new ApiError(
+      "Failed to retrieve users",
+      StatusCodes.INTERNAL_SERVER_ERROR
+    );
   }
 });
 
@@ -49,7 +77,9 @@ const approveUser = AsyncHandler(async (req, res) => {
     if (!userId) {
       return res
         .status(StatusCodes.BAD_REQUEST)
-        .json(ApiResponse("User ID is required", null, StatusCodes.BAD_REQUEST));
+        .json(
+          ApiResponse("User ID is required", null, StatusCodes.BAD_REQUEST)
+        );
     }
 
     const updatedUser = await userService.approveUserById(userId);
@@ -62,9 +92,14 @@ const approveUser = AsyncHandler(async (req, res) => {
 
     res
       .status(StatusCodes.OK)
-      .json(ApiResponse("User approved successfully", updatedUser, StatusCodes.OK));
+      .json(
+        ApiResponse("User approved successfully", updatedUser, StatusCodes.OK)
+      );
   } catch (error) {
-    throw new ApiError("Failed to approve user", StatusCodes.INTERNAL_SERVER_ERROR);
+    throw new ApiError(
+      "Failed to approve user",
+      StatusCodes.INTERNAL_SERVER_ERROR
+    );
   }
 });
 
@@ -76,7 +111,9 @@ const updateUser = AsyncHandler(async (req, res) => {
     if (!userId) {
       return res
         .status(StatusCodes.BAD_REQUEST)
-        .json(ApiResponse("User ID is required", null, StatusCodes.BAD_REQUEST));
+        .json(
+          ApiResponse("User ID is required", null, StatusCodes.BAD_REQUEST)
+        );
     }
 
     const updatedUser = await userService.updateUserById(userId, updateData);
@@ -89,10 +126,15 @@ const updateUser = AsyncHandler(async (req, res) => {
 
     res
       .status(StatusCodes.OK)
-      .json(ApiResponse("User updated successfully", updatedUser, StatusCodes.OK));
+      .json(
+        ApiResponse("User updated successfully", updatedUser, StatusCodes.OK)
+      );
   } catch (error) {
     console.error("Error updating user:", error);
-    throw new ApiError("Failed to update user", StatusCodes.INTERNAL_SERVER_ERROR);
+    throw new ApiError(
+      "Failed to update user",
+      StatusCodes.INTERNAL_SERVER_ERROR
+    );
   }
 });
 const deleteUser = AsyncHandler(async (req, res) => {
@@ -102,7 +144,9 @@ const deleteUser = AsyncHandler(async (req, res) => {
     if (!userId) {
       return res
         .status(StatusCodes.BAD_REQUEST)
-        .json(ApiResponse("User ID is required", null, StatusCodes.BAD_REQUEST));
+        .json(
+          ApiResponse("User ID is required", null, StatusCodes.BAD_REQUEST)
+        );
     }
 
     const updatedUser = await userService.deleteUser(userId);
@@ -115,9 +159,14 @@ const deleteUser = AsyncHandler(async (req, res) => {
 
     res
       .status(StatusCodes.OK)
-      .json(ApiResponse("User delete successfully", updatedUser, StatusCodes.OK));
+      .json(
+        ApiResponse("User delete successfully", updatedUser, StatusCodes.OK)
+      );
   } catch (error) {
-    throw new ApiError("Failed to delete user", StatusCodes.INTERNAL_SERVER_ERROR);
+    throw new ApiError(
+      "Failed to delete user",
+      StatusCodes.INTERNAL_SERVER_ERROR
+    );
   }
 });
 const deleteApprove = AsyncHandler(async (req, res) => {
@@ -127,7 +176,9 @@ const deleteApprove = AsyncHandler(async (req, res) => {
     if (!userId) {
       return res
         .status(StatusCodes.BAD_REQUEST)
-        .json(ApiResponse("User ID is required", null, StatusCodes.BAD_REQUEST));
+        .json(
+          ApiResponse("User ID is required", null, StatusCodes.BAD_REQUEST)
+        );
     }
 
     const deletedUser = await userService.deleteApprove(userId);
@@ -140,32 +191,39 @@ const deleteApprove = AsyncHandler(async (req, res) => {
 
     res
       .status(StatusCodes.OK)
-      .json(ApiResponse("User delete successfully", deletedUser, StatusCodes.OK));
+      .json(
+        ApiResponse("User delete successfully", deletedUser, StatusCodes.OK)
+      );
   } catch (error) {
     console.error("Failed to delete user:", error);
-    throw new ApiError("Failed to delete user", StatusCodes.INTERNAL_SERVER_ERROR);
+    throw new ApiError(
+      "Failed to delete user",
+      StatusCodes.INTERNAL_SERVER_ERROR
+    );
   }
 });
 const getUserByUserId = async (req, res) => {
   try {
-    const { id } = req.params; 
+    const { id } = req.params;
 
     const user = await userService.getUserById(id);
-    
 
     res.status(200).json({
       success: true,
-      message: 'Partner fetched successfully',
-      data: user, 
+      message: "Partner fetched successfully",
+      data: user,
     });
   } catch (error) {
     console.error(error);
     res.status(500).json({
       success: false,
-      message: error.message || 'Partner error occurred',
+      message: error.message || "Partner error occurred",
     });
   }
 };
+
+
+
 module.exports = {
   loadListUser,
   loadListUserByRoleAndStatus,
@@ -173,5 +231,6 @@ module.exports = {
   updateUser,
   deleteUser,
   deleteApprove,
-  getUserByUserId
+  getUserByUserId,
+  
 };

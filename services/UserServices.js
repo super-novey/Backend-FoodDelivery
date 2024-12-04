@@ -90,6 +90,8 @@ const getUserById = async (userId) => {
     throw new Error("Error fetching user by ID");
   }
 };
+
+
 module.exports = { isUserExists, createUser, findUsersByStatus,
   findUsersByRoleAndStatus,
   updateUserById,

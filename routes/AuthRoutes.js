@@ -39,6 +39,7 @@ router.post(
 
 router.post("/verifyOTP", AuthController.verifyOtp);
 router.post("/resendOTP", AuthController.resendOTP);
+router.post("/changePassword", AuthController.changePassword);
 
 // Test
 router.post(
