@@ -7,12 +7,7 @@ const AuthRoutesValidations = require("./validators/AuthRoutes.validators");
 
 const fileUploader = require("../config/cloudinary.config");
 
-router.post(
-  "/login",
-  AuthRoutesValidations.loginValidation,
-  HandleBadRequest,
-  AuthController.login
-);
+router.post("/login", AuthController.login);
 
 router.post("/register", AuthController.register);
 
@@ -39,6 +34,7 @@ router.post(
 
 router.post("/verifyOTP", AuthController.verifyOtp);
 router.post("/resendOTP", AuthController.resendOTP);
+router.post("/resetPassword", AuthController.resetPassword);
 router.post("/changePassword", AuthController.changePassword);
 
 // Test

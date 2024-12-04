@@ -433,6 +433,55 @@ const resendOTP = AsyncHandler(async (req, res) => {
   res.status(StatusCodes.OK).json(ApiResponse("OTP resend successfully"));
 });
 
+const resetPassword = AsyncHandler(async (req, res) => {
+  const { email, role } = req.body;
+
+  // is user exists
+  const userExists = await isUserExists(email, role);
+
+  if (!userExists) {
+    return res
+      .status(StatusCodes.UNAUTHORIZED)
+      .json(
+        ApiResponse(
+          "Địa chỉ email chưa được đăng ký!",
+          null,
+          StatusCodes.UNAUTHORIZED,
+          true
+        )
+      );
+  }
+
+  // Generate password as OTP
+  const { otp, otpExpires } = generateOtp();
+
+  // Hash password
+  const salt = await bcrypt.genSalt();
+  const hashedPassword = await bcrypt.hash(otp, salt);
+  userExists.password = hashedPassword;
+
+  await userExists.save();
+
+  // send OTP via email
+  transporter.sendMail(
+    {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "Reset mật khẩu",
+      text: `Mật khẩu mới của bạn là: ${otp}`,
+    },
+    (error, info) => {
+      if (error) {
+        console.log("Error:", error);
+      } else {
+        console.log("Email sent:", info.response);
+      }
+    }
+  );
+
+  res.status(StatusCodes.OK).json(ApiResponse("Reset mật khẩu thành công!"));
+});
+
 const verifyOtp = AsyncHandler(async (req, res) => {
   const { email, otp, role } = req.body;
 
@@ -524,4 +573,5 @@ module.exports = {
   driverRegister,
   partnerRegister,
   changePassword,
+  resetPassword,
 };
