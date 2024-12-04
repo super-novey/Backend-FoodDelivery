@@ -41,6 +41,21 @@ const updateOrderStatus = async (orderId, statusUpdates) => {
       throw new Error("No valid statuses provided for update");
     }
 
+    // Tìm đơn hàng hiện tại
+    const existingOrder = await Order.findById(orderId);
+    if (!existingOrder) {
+      throw new Error("Order not found");
+    }
+
+    // Kiểm tra nếu đã có tài xế được gán
+    if (existingOrder.assignedShipperId && !statusUpdates.assignedShipperId) {
+      throw new Error("Cannot update order as a driver has already been assigned");
+    }
+
+    if (existingOrder.custStatus == 'cancelled') {
+      throw new Error("Cannot update order as order has already been cancelled");
+    }
+
     const updatedOrder = await Order.findByIdAndUpdate(orderId, updates, {
       new: true,
     });
