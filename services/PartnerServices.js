@@ -74,11 +74,9 @@ const updatePartnerStatus = async (partnerId, status) => {
       { new: true }
     );
     console.log(partnerId);
-
     if (!updatedPartner) {
       throw new Error("Partner not found.");
     }
-
     return updatedPartner; 
   } catch (error) {
     console.error("Error updating partner status:", error);

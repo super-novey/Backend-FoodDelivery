@@ -85,16 +85,13 @@ const delelePartner = AsyncHandler(async (req, res) => {
 const updateStatus = AsyncHandler(async (req, res) => {
   const { userId } = req.params; 
   const { status } = req.body;   
-
   if (typeof status !== 'boolean') {
     return res.status(StatusCodes.BAD_REQUEST).json(
       ApiResponse("Status must be a boolean.", null, StatusCodes.BAD_REQUEST)
     );
   }
-
   try {
     const updatedPartner = await updatePartnerStatus(userId, status);
-
     res.status(StatusCodes.OK).json(
       ApiResponse("Partner status updated successfully.", updatedPartner, StatusCodes.OK)
     );
