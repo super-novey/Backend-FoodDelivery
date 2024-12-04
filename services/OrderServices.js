@@ -41,20 +41,22 @@ const updateOrderStatus = async (orderId, statusUpdates) => {
       throw new Error("No valid statuses provided for update");
     }
 
-    // Tìm đơn hàng hiện tại
-    const existingOrder = await Order.findById(orderId);
-    if (!existingOrder) {
-      throw new Error("Order not found");
-    }
+    // // Tìm đơn hàng hiện tại
+    // const existingOrder = await Order.findById(orderId);
+    // if (!existingOrder) {
+    //   throw new Error("Order not found");
+    // }
 
-    // Kiểm tra nếu đã có tài xế được gán
-    if (existingOrder.assignedShipperId && !statusUpdates.assignedShipperId) {
-      throw new Error("Cannot update order as a driver has already been assigned");
-    }
+    // // Kiểm tra nếu đã có tài xế được gán
+    // if (existingOrder.assignedShipperId && !statusUpdates.assignedShipperId) {
+    //   throw new Error("Cannot update order as a driver has already been assigned");
+    // }
 
-    if (existingOrder.custStatus == 'cancelled') {
-      throw new Error("Cannot update order as order has already been cancelled");
-    }
+    // if (existingOrder.custStatus == "cancelled") {
+    //   throw new Error(
+    //     "Cannot update order as order has already been cancelled"
+    //   );
+    // }
 
     const updatedOrder = await Order.findByIdAndUpdate(orderId, updates, {
       new: true,
@@ -462,15 +464,15 @@ const updateRating = async (orderId, updates) => {
     console.error("Update rating fail:", error.message);
     throw error;
   }
-}
+};
 const getRatingsByItem = async (itemId) => {
   try {
     const orders = await Order.find({
-      "orderItems.itemId": itemId, 
+      "orderItems.itemId": itemId,
       custResRating: { $ne: null },
     })
-      .populate({ path: "customerId", select: "name phone" }) 
-      .populate({ path: "orderItems.itemId", select: "itemName" }); 
+      .populate({ path: "customerId", select: "name phone" })
+      .populate({ path: "orderItems.itemId", select: "itemName" });
 
     // Kiểm tra kết quả
     if (!orders || orders.length === 0) {
@@ -495,9 +497,9 @@ const getRatingsByItem = async (itemId) => {
 const getRatingsByRestaurant = async (restaurantId) => {
   try {
     const orders = await Order.find({
-      restaurantId: restaurantId,  
+      restaurantId: restaurantId,
       custResRating: { $ne: null },
-    }).populate({ path: "customerId", select: "name phone" }) 
+    }).populate({ path: "customerId", select: "name phone" });
 
     if (!orders || orders.length === 0) {
       throw new Error("No orders found for the specified restaurant.");
@@ -521,9 +523,9 @@ const getRatingsByRestaurant = async (restaurantId) => {
 const getRatingsByDriver = async (assignedShipperId) => {
   try {
     const orders = await Order.find({
-      assignedShipperId: assignedShipperId,  
+      assignedShipperId: assignedShipperId,
       custShipperRating: { $ne: null },
-    }).populate({ path: "customerId", select: "name phone" }) 
+    }).populate({ path: "customerId", select: "name phone" });
 
     if (!orders || orders.length === 0) {
       throw new Error("No orders found for the specified restaurant.");
@@ -547,9 +549,9 @@ const getRatingsByDriver = async (assignedShipperId) => {
 const getRatingsByCustomer = async (customerId) => {
   try {
     const orders = await Order.find({
-      customerId: customerId,  
+      customerId: customerId,
       custResRating: { $ne: null },
-    }).populate({ path: "customerId", select: "name phone" }) 
+    }).populate({ path: "customerId", select: "name phone" });
 
     if (!orders || orders.length === 0) {
       throw new Error("No orders found for the specified restaurant.");
@@ -586,5 +588,5 @@ module.exports = {
   getRatingsByItem,
   getRatingsByRestaurant,
   getRatingsByDriver,
-  getRatingsByCustomer
+  getRatingsByCustomer,
 };
