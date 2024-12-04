@@ -21,23 +21,18 @@ module.exports = (socket, io) => {
         return;
       }
 
-      console.log(`Detail Order Retrieved:`, detailOrder);
-
       // Check conditions
-      if (detailOrder.assignedShipperId && detailOrder.restStatus === "new") {
+      if (detailOrder.assignedShipperId) {
         const roomId = detailOrder.restaurantId.toString();
 
-        if (roomId) {
-          // Emit to the specific room
+        // Send to partner
+        if (detailOrder.restStatus === "new")
           io.to(roomId).emit("order:updatedStatus", detailOrder);
 
-          console.log(`Emitted order details to room: ${roomId}`);
-        } else {
-          console.log(`Restaurant ID is missing for order: ${detailOrder.id}`);
-        }
-      } else {
-        console.log(
-          `Conditions not met for emitting: assignedShipperId=${detailOrder.assignedShipperId}, restStatus=${detailOrder.restStatus}`
+        // Send to customer
+        io.to(detailOrder.id.toString()).emit(
+          "order:updatedStatus",
+          detailOrder
         );
       }
     } catch (error) {
