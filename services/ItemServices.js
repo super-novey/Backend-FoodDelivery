@@ -197,7 +197,38 @@ const updateQuantity = async (itemId, newSales) => {
     throw error;
   }
 };
+const getTopItems = async () => {
+  try {
+    const topItems = await Item.aggregate([
+      {
+        $match: {
+          isDeleted: "false", 
+          status: true,
+        },
+      },
+      {
+        $sort: { sales: -1 }, 
+      },
+      {
+        $limit: 10, 
+      },
+      {
+        $project: {
+          itemName: 1,
+          price: 1,
+          sales: 1,
+          itemImage: 1,
+          description: 1,
+          partnerId: 1
+        },
+      },
+    ]);
 
+    return topItems;
+  } catch (error) {
+    throw new Error(`Error fetching top items: ${error.message}`);
+  }
+};
 module.exports = {
   getItemsByCategoryId,
   createNewItem,
@@ -207,4 +238,5 @@ module.exports = {
   searchItemsByName,
   getItemsByCategoryIdInCustomer,
   getItemByCategory,
+  getTopItems
 };

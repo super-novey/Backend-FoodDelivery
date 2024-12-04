@@ -572,6 +572,159 @@ const getRatingsByCustomer = async (customerId) => {
     throw new Error(`Error retrieving ratings: ${error.message}`);
   }
 };
+const getDeliveryStatusByDriver = async (assignedShipperId) => {
+  try {
+    const orders = await Order.find({
+      assignedShipperId: assignedShipperId,
+    });
+
+    if (!orders || orders.length === 0) {
+      throw new Error("No orders found for the specified driver.");
+    }
+
+    const totalDeliveryFee = orders
+      .filter((order) => order.driverStatus === "delivered")
+      .reduce((sum, order) => sum + (order.deliveryFee || 0), 0);
+
+    const deliveredOrdersCount = orders.filter(
+      (order) => order.driverStatus === "delivered"
+    ).length;
+
+    const cancelledOrdersCount = orders.filter(
+      (order) => order.driverStatus === "cancelled"
+    ).length;
+
+    return {
+      driverId: assignedShipperId,
+      totalDeliveryFee,
+      deliveredOrdersCount,
+      cancelledOrdersCount,
+    };
+  } catch (error) {
+    throw new Error(`Error calculating delivery stats: ${error.message}`);
+  }
+};
+const getDeliveryStatusByRestaurant = async (restaurantId) => {
+  try {
+    const orders = await Order.find({
+      restaurantId: restaurantId,
+    });
+
+    if (!orders || orders.length === 0) {
+      throw new Error("No orders found for the specified driver.");
+    }
+
+    const totalPrice = orders
+      .filter((order) => order.restStatus === "completed")
+      .reduce((sum, order) => sum + (order.totalPrice|| 0), 0);
+
+    const deliveredOrdersCount = orders.filter(
+      (order) => order.restStatus === "completed"
+    ).length;
+
+    const cancelledOrdersCount = orders.filter(
+      (order) => order.restStatus === "cancelled" && order.assignedShipperId !== null
+    ).length;
+
+    return {
+      restaurantId: restaurantId,
+      totalPrice,
+      deliveredOrdersCount,
+      cancelledOrdersCount,
+    };
+  } catch (error) {
+    throw new Error(`Error calculating delivery stats: ${error.message}`);
+  }
+};
+const getOrderStatus = async () => {
+  try {
+    const orders = await Order.find();
+
+    if (!orders || orders.length === 0) {
+      throw new Error("No orders found.");
+    }
+
+    const completedOrdersCount = orders.filter(
+      (order) => order.restStatus === "completed"
+    ).length;
+
+    const cancelledOrdersCount = orders.filter(
+      (order) => order.restStatus === "cancelled"
+    ).length;
+
+    const totalOrdersCount = orders.length;
+
+    return {
+      totalOrders: totalOrdersCount,
+      completedOrders: completedOrdersCount,
+      cancelledOrders: cancelledOrdersCount,
+    };
+  } catch (error) {
+    throw new Error(`Error calculating order stats: ${error.message}`);
+  }
+};
+const getRestaurantsWithHighRatings = async () => {
+  try {
+    const highRatedRestaurants = await Order.aggregate([
+      {
+        $match: {
+          custResRating: { $gte: 1 }, 
+        },
+      },
+      {
+        $group: {
+          _id: "$restaurantId", 
+          averageRating: { $avg: "$custResRating" }, 
+          totalOrders: { $sum: 1 }, 
+        },
+      },
+      {
+        $match: {
+          averageRating: { $gt: 4}, 
+        },
+      },
+      {
+        $lookup: {
+          from: "updatedpartners", 
+          localField: "_id",
+          foreignField: "_id",
+          as: "restaurantDetails", 
+        },
+      },
+      {
+        $unwind: "$restaurantDetails",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "restaurantDetails.userId",
+          foreignField: "_id",
+          as: "userDetails", 
+        },
+      },
+      {
+        $unwind: "$userDetails", // Flatten the userDetails array (assuming one user per restaurant)
+      },
+      {
+        $project: {
+          _id: 0, 
+          restaurantId: "$_id", 
+          averageRating: 1, 
+          totalOrders: 1, 
+          restaurantName: "$restaurantDetails.name", 
+          restaurantPhone: "$restaurantDetails.phone", 
+          userName: "$userDetails.name", 
+          restaurantURL: "$restaurantDetails.storeFront"
+        },
+      },
+    ]);
+
+    return highRatedRestaurants;
+  } catch (error) {
+    throw new Error(`Error fetching high-rated restaurants: ${error.message}`);
+  }
+};
+
 module.exports = {
   createOrder,
   updateOrder,
@@ -589,4 +742,8 @@ module.exports = {
   getRatingsByRestaurant,
   getRatingsByDriver,
   getRatingsByCustomer,
+  getDeliveryStatusByDriver,
+  getDeliveryStatusByRestaurant,
+  getOrderStatus,
+  getRestaurantsWithHighRatings
 };
