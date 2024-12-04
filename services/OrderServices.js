@@ -1,6 +1,7 @@
 const Order = require("../models/Order");
 const mongoose = require("mongoose");
 const { StatusCodes } = require("http-status-codes");
+const OrderItem = require("../models/OrderItem");
 
 const createOrder = async (orderData) => {
   try {
@@ -450,12 +451,15 @@ const updateRating = async (orderId, updates) => {
 const getRatingsByItem = async (itemId) => {
   try {
     const orders = await Order.find({
-      "orderItems.itemId._id": itemId,  
+      "orderItems.itemId": itemId, 
       custResRating: { $ne: null },
-    }).populate({ path: "customerId", select: "name phone" })
+    })
+      .populate({ path: "customerId", select: "name phone" }) 
+      .populate({ path: "orderItems.itemId", select: "itemName" }); 
 
+    // Kiểm tra kết quả
     if (!orders || orders.length === 0) {
-      throw new Error("No orders found with the specified item.");
+      return { message: "Không tìm thấy đơn hàng chứa sản phẩm này." };
     }
 
     const ratings = orders.map((order) => ({
@@ -467,10 +471,10 @@ const getRatingsByItem = async (itemId) => {
       custShipperRating: order.custShipperRating,
       orderDatetime: order.orderDatetime,
     }));
-
     return ratings;
   } catch (error) {
-    throw new Error(`Error retrieving ratings: ${error.message}`);
+    console.error("Lỗi khi tìm kiếm đơn hàng:", error);
+    throw new Error(`Lỗi: ${error.message}`);
   }
 };
 const getRatingsByRestaurant = async (restaurantId) => {
