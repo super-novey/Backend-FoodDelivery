@@ -28,5 +28,5 @@ router.get("/customer/home", ItemController.getItemByCategoryInHome);
 router.patch("/:id/quantity", ItemController.decreaseQuantity);
 router.patch("/:id/sales", ItemController.increaseSales);
 
-router.get("/rating/:id", OrderController.getAllRatingByItem);
+router.get("/rating/:itemId", OrderController.getAllRatingByItem);
 module.exports = router;

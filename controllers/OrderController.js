@@ -435,9 +435,10 @@ const updateOrderRating = AsyncHandler(async (req, res) => {
 });
 const getAllRatingByItem = async (req, res) => {
   const { itemId } = req.params;
-
+  console.log(itemId);
   try {
     const ratings = await OrderService.getRatingsByItem(itemId);
+    console.log(ratings);
 
     return res.status(200).json({
       message: "Ratings retrieved successfully.",
