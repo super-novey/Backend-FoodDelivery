@@ -604,38 +604,39 @@ const getDeliveryStatusByDriver = async (assignedShipperId) => {
     throw new Error(`Error calculating delivery stats: ${error.message}`);
   }
 };
-const getDeliveryStatusByRestaurant = async (restaurantId) => {
+const getDeliveryStatusByRestaurant = async (restaurantId, startDate, endDate) => {
   try {
+    const dateFilter = {};
+    if (startDate) dateFilter.$gte = new Date(startDate);
+    if (endDate) dateFilter.$lte = new Date(endDate);
+
     const orders = await Order.find({
       restaurantId: restaurantId,
-    });
+      ...(Object.keys(dateFilter).length > 0 && { orderDatetime: dateFilter }),
+    }).populate({ path: "customerId", select: "name phone" });
 
     if (!orders || orders.length === 0) {
-      throw new Error("No orders found for the specified driver.");
+      throw new Error("No orders found for the specified restaurant.");
     }
 
-    const totalPrice = orders
-      .filter((order) => order.restStatus === "completed")
-      .reduce((sum, order) => sum + (order.totalPrice|| 0), 0);
+    const statistic = orders.map((order) => ({
+      orderId: order._id,
+      custResRating: order.custResRating,
+      custResRatingComment: order.custResRatingComment,
+      customerName: order.customerId?.name || "Unknown",
+      custShipperRatingComment: order.custShipperRatingComment,
+      custShipperRating: order.custShipperRating,
+      orderDatetime: order.orderDatetime,
+      status: order.restStatus,
+      totalPrice: order.totalPrice,
+    }));
 
-    const deliveredOrdersCount = orders.filter(
-      (order) => order.restStatus === "completed"
-    ).length;
-
-    const cancelledOrdersCount = orders.filter(
-      (order) => order.restStatus === "cancelled" && order.assignedShipperId !== null
-    ).length;
-
-    return {
-      restaurantId: restaurantId,
-      totalPrice,
-      deliveredOrdersCount,
-      cancelledOrdersCount,
-    };
+    return statistic;
   } catch (error) {
     throw new Error(`Error calculating delivery stats: ${error.message}`);
   }
 };
+
 const getOrderStatus = async () => {
   try {
     const orders = await Order.find();
