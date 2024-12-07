@@ -572,34 +572,34 @@ const getRatingsByCustomer = async (customerId) => {
     throw new Error(`Error retrieving ratings: ${error.message}`);
   }
 };
-const getDeliveryStatusByDriver = async (assignedShipperId) => {
+const getDeliveryStatusByDriver = async (assignedShipperId, startDate, endDate) => {
   try {
+    const dateFilter = {};
+    if (startDate) dateFilter.$gte = new Date(startDate);
+    if (endDate) dateFilter.$lte = new Date(endDate);
+
     const orders = await Order.find({
       assignedShipperId: assignedShipperId,
-    });
+      ...(Object.keys(dateFilter).length > 0 && { orderDatetime: dateFilter }),
+    }).populate({ path: "customerId", select: "name phone" });
 
     if (!orders || orders.length === 0) {
-      throw new Error("No orders found for the specified driver.");
+      throw new Error("No orders found for the specified restaurant.");
     }
 
-    const totalDeliveryFee = orders
-      .filter((order) => order.driverStatus === "delivered")
-      .reduce((sum, order) => sum + (order.deliveryFee || 0), 0);
+    const statistic = orders.map((order) => ({
+      orderId: order._id,
+      custResRating: order.custResRating,
+      custResRatingComment: order.custResRatingComment,
+      customerName: order.customerId?.name || "Unknown",
+      custShipperRatingComment: order.custShipperRatingComment,
+      custShipperRating: order.custShipperRating,
+      orderDatetime: order.orderDatetime,
+      status: order.restStatus,
+      deliveryFee: order.deliveryFee,
+    }));
 
-    const deliveredOrdersCount = orders.filter(
-      (order) => order.driverStatus === "delivered"
-    ).length;
-
-    const cancelledOrdersCount = orders.filter(
-      (order) => order.driverStatus === "cancelled"
-    ).length;
-
-    return {
-      driverId: assignedShipperId,
-      totalDeliveryFee,
-      deliveredOrdersCount,
-      cancelledOrdersCount,
-    };
+    return statistic;
   } catch (error) {
     throw new Error(`Error calculating delivery stats: ${error.message}`);
   }

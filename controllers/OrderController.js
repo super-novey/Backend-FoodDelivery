@@ -500,13 +500,18 @@ const getAllRatingByCustomer = async (req, res) => {
 };
 const getDeliveryByDriver = async (req, res) => {
   const { assignedShipperId } = req.params;
+  const { query_dateFrom, query_dateTo } = req.query; 
 
   try {
-    const ratings = await OrderService.getDeliveryStatusByDriver(assignedShipperId);
+    const statistic = await OrderService.getDeliveryStatusByDriver(
+      assignedShipperId,
+      query_dateFrom,
+      query_dateTo
+    );
 
     return res.status(200).json({
       message: "Ratings retrieved successfully.",
-      data: ratings,
+      data: statistic,
     });
   } catch (error) {
     return res.status(500).json({
