@@ -36,6 +36,7 @@ const UserSchema = mongoose.Schema(
     otpExpires: {
       type: Date,
     },
+    favoriteList: [{ type: mongoose.Schema.Types.ObjectId, ref: "Food", default: [] }],
   },
   {
     timestamps: true,

@@ -30,5 +30,7 @@ router.patch("/:id/sales", ItemController.increaseSales);
 
 router.get("/rating/:itemId", OrderController.getAllRatingByItem);
 router.get("/customer/topItem", ItemController.getTopItem);
-
+router.post("/add/favorite", ItemController.addFavorite);
+router.delete("/favorite/:userId/:itemId", ItemController.removeFavorite);
+router.get("/favorite/:userId", ItemController.getFavoriteList);
 module.exports = router;
