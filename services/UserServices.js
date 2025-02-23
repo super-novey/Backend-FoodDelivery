@@ -25,6 +25,7 @@ const createUser = async (
     phone: phone,
     otp: otp,
     otpExpires: otpExpires,
+    favoriteList: [],
   });
 };
 const findUsersByStatus = async (status, isDeleted) => {

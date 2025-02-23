@@ -1,5 +1,6 @@
 const ApiError = require("../controllers/error/ApiError");
 const Item = require("../models/Item");
+const User = require("../models/User");
 const removeVietnameseTones = (str) => {
   return str
     .normalize("NFD")
@@ -230,6 +231,92 @@ const getTopItems = async () => {
     throw new Error(`Error fetching top items: ${error.message}`);
   }
 };
+
+const addToFavorites = async (userId, itemId) => {
+  try {
+    console.log(`Thêm món ăn yêu thích | userId: ${userId}, itemId: ${itemId}`);
+
+    const user = await User.findById(userId);
+    if (!user) {
+      console.log("Người dùng không tồn tại:", userId);
+      throw new ApiError("Người dùng không tồn tại", 404);
+    }
+
+    const item = await Item.findById(itemId);
+    if (!item) {
+      console.log("Món ăn không tồn tại:", itemId);
+      throw new ApiError("Món ăn không tồn tại", 404);
+    }
+
+    if (user.favoriteList.includes(itemId.toString())) {
+      console.log("Món ăn đã có trong danh sách yêu thích:", itemId);
+      throw new ApiError("Món ăn đã có trong danh sách yêu thích", 400);
+    }
+
+    user.favoriteList.push(itemId);
+    await user.save();
+    
+    console.log("Món ăn đã được thêm vào danh sách yêu thích!");
+    return user;
+  } catch (error) {
+    console.error("Lỗi khi thêm vào danh sách yêu thích:", error.message);
+    throw error;
+  }
+};
+const removeFromFavorites = async (userId, itemId) => {
+  try {
+    console.log(`Xóa món ăn khỏi yêu thích | userId: ${userId}, itemId: ${itemId}`);
+
+    const user = await User.findById(userId);
+    if (!user) {
+      console.log("Người dùng không tồn tại:", userId);
+      throw new ApiError("Người dùng không tồn tại", 404);
+    }
+
+    const favoriteListBefore = user.favoriteList.length;
+    user.favoriteList = user.favoriteList.filter(id => id.toString() !== itemId);
+
+    if (user.favoriteList.length === favoriteListBefore) {
+      console.log("Món ăn không có trong danh sách yêu thích:", itemId);
+      throw new ApiError("Món ăn không có trong danh sách yêu thích", 400);
+    }
+
+    await user.save();
+    console.log("Món ăn đã được xóa khỏi danh sách yêu thích!");
+    
+    return user;
+  } catch (error) {
+    console.error("Lỗi khi xóa khỏi danh sách yêu thích:", error.message);
+    throw error;
+  }
+};
+
+const getFavorite = async (userId) => {
+  try {
+    console.log("Fetching favorite list for user:", userId);
+
+    const user = await User.findById(userId);
+    if (!user) {
+      console.log("User not found:", userId);
+      return [];
+    }
+
+    if (!user.favoriteList || user.favoriteList.length === 0) {
+      console.log("No favorite items found for user:", userId);
+      return [];
+    }
+
+    const favoriteItems = await Item.find({
+      _id: { $in: user.favoriteList },
+    }).select("_id partnerId itemName price description itemImage sales");
+
+    return favoriteItems;
+  } catch (error) {
+    console.error("Error retrieving favorite items:", error.message);
+    throw error;
+  }
+};
+
 module.exports = {
   getItemsByCategoryId,
   createNewItem,
@@ -239,5 +326,8 @@ module.exports = {
   searchItemsByName,
   getItemsByCategoryIdInCustomer,
   getItemByCategory,
-  getTopItems
+  getTopItems,
+  addToFavorites,
+  removeFromFavorites,
+  getFavorite
 };

@@ -418,6 +418,55 @@ const getTopItem = async (req, res) => {
     });
   }
 };
+const addFavorite = async (req, res) => {
+  const { userId, itemId } = req.body;
+  try {
+    const user = await ItemServices.addToFavorites(userId, itemId);
+
+    const favoriteItems = await Item.find({ _id: { $in: user.favoriteList } })
+      .select("_id partnerId itemName price description itemImage sales");
+
+    res.status(200).json({
+      message: "Add to favorite list successfully.",
+      data: favoriteItems
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+
+const removeFavorite = async (req, res) => {
+  try {
+    const { userId, itemId } = req.params;
+
+    const user = await ItemServices.removeFromFavorites(userId, itemId);
+    
+    res.status(200).json({
+      message: "Removed from favorite list successfully.",
+      data: user
+    });
+  } catch (error) {
+    res.status(error.statusCode || 500).json({
+      message: error.message,
+    });
+  }
+};
+const getFavoriteList = async (req, res) => {
+  const { userId } = req.params;
+  
+  try {
+    const favoriteItems = await ItemServices.getFavorite(userId);
+    res.status(200).json({
+      message: "Lấy danh sách món ăn yêu thích thành công.",
+      data: favoriteItems,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 module.exports = {
   addItemToCategory,
   getItemById,
@@ -429,5 +478,8 @@ module.exports = {
   getItemByCategoryInHome,
   decreaseQuantity,
   increaseSales,
-  getTopItem
+  getTopItem,
+  addFavorite,
+  removeFavorite,
+  getFavoriteList
 };

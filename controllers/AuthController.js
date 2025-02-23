@@ -75,7 +75,9 @@ const register = AsyncHandler(async (req, res) => {
     phone: phone,
     otp: otp,
     otpExpires: otpExpires,
+    favoriteList: [],
   });
+  console.log("User vừa tạo:", user);
 
   // send OTP via email
   transporter.sendMail(
