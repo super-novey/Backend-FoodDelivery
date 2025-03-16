@@ -26,8 +26,8 @@ const getDistance = async (req, res) => {
       return res.status(400).json({ message: "Both addresses are required." });
     }
 
-    const distance = await mapService.getDistanceBetweenAddresses(address1, address2);
-    res.status(200).json({ distance: `${distance.toFixed(2)} km` });
+    const { distance, duration } = await mapService.getDistanceBetweenAddresses(address1, address2);
+    res.status(200).json({ distance: distance , duration: duration});
   } catch (error) {
     res.status(500).json({ message: "Error calculating distance", error: error.message });
   }
