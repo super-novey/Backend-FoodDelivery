@@ -13,6 +13,7 @@ const CategoryRoutes = require("./CategoryRoutes");
 const UserRoutes = require("./UserRoutes");
 const ItemRoutes = require("./ItemRoutes");
 const OrderRoutes = require("./OrderRoutes");
+const MapRoutes = require("./MapRoutes");
 
 // assign prefix - to routes
 router.use("/auth", AuthRoutes);
@@ -22,5 +23,6 @@ router.use("/category", CategoryRoutes);
 router.use("/user", UserRoutes);
 router.use("/item", ItemRoutes);
 router.use("/order", OrderRoutes);
+router.use("/map", MapRoutes);
 
 module.exports = router;
