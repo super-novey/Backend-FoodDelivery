@@ -1,6 +1,29 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
+
+const TimeSplotSchema = mongoose.Schema(
+    {
+        open: {
+            type: String, 
+            required: true,
+          },
+          close: {
+            type: String, 
+            required: true,
+          },
+    },
+    { _id: false }
+);
+
+const DayScheduleSchema = Schema({
+    day: {
+      type: String, 
+      required: true,
+    },
+    timeSlots: [TimeSplotSchema], 
+  }); 
+
 const UpdatedPartnerSchema = Schema(
   {
     userId: {
@@ -48,6 +71,7 @@ const UpdatedPartnerSchema = Schema(
     detailAddress: {
       type: String,
     },
+    schedule: [DayScheduleSchema],
   },
   {
     timeStamp: true,

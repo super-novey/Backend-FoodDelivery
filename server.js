@@ -2,10 +2,11 @@
 core packages
 ==============================*/
 const express = require("express");
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./config/swagger');
 const dotenv = require("dotenv");
 const path = require("path");
 const cors = require("cors");
-const { Server } = require("socket.io");
 const { initializeSocket } = require("./sockets");
 dotenv.config();
 
@@ -13,7 +14,6 @@ dotenv.config();
 include Routes and database connection
 ==============================*/
 const DBConnect = require("./config/db");
-const upload = require("./config/multer");
 const Routes = require("./routes");
 
 /*==============================
@@ -33,13 +33,8 @@ app.use(cors());
 /*==============================
 routes
 ==============================*/
-// app.use(
-//   upload.fields([
-//     { name: "single", maxCount: 1 },
-//     { name: "multiple", maxCount: 10 },
-//   ])
-// );
 app.use("/api/v1", Routes); // routes and prefix
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 /*==============================
 public endpoint for file/media access

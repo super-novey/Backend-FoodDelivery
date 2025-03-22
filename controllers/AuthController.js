@@ -23,89 +23,40 @@ const {
   singleFileTransfer,
 } = require("../helpers/fileHelpers");
 
-/**
- * @desc Register new user
- * @route POST /api/v1/auth/register
- * @access public
- */
-const register = AsyncHandler(async (req, res) => {
+const AuthService = require('../services/auth.service');
+const EmailService = require('../services/email.service');
+
+const register = async (req, res) => {
   const { name, email, password, role, phone } = req.body;
 
-  // is user exists
-  const userExists = await isUserExists(email, role);
-
-  if (userExists) {
-    return res
-      .status(StatusCodes.CONFLICT)
-      .json(
-        ApiResponse(
-          "Địa chỉ email đã được đăng ký",
-          null,
-          StatusCodes.CONFLICT,
-          true
-        )
-      );
+  // Kiểm tra dữ liệu đầu vào
+  if (!name || !email || !password || !role || !phone) {
+    return res.status(StatusCodes.BAD_REQUEST).json(
+      ApiResponse('Missing required fields', null, StatusCodes.BAD_REQUEST, true)
+    );
   }
-  // if (userExists) {
-  //   return res
-  //     .status(StatusCodes.CONFLICT)
-  //     .json(
-  //       ApiResponse(
-  //         "User with provided Email address already exists",
-  //         null,
-  //         StatusCodes.CONFLICT,
-  //         true
-  //       )
-  //     );
-  // }
-  // Hash password
-  const salt = await bcrypt.genSalt();
-  const hashedPassword = await bcrypt.hash(password, salt);
-
-  // Generate OTP
-  const { otp, otpExpires } = generateOtp();
-
-  // create user
-  const user = await User.create({
-    name: name,
-    email: email,
-    password: hashedPassword,
-    status: true,
-    role: role,
-    phone: phone,
-    otp: otp,
-    otpExpires: otpExpires,
-    favoriteList: [],
-  });
-  console.log("User vừa tạo:", user);
-
-  // send OTP via email
-  transporter.sendMail(
-    {
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: "Xác thực OTP",
-      text: `Mã OTP của bạn là: ${otp}`,
-    },
-    (error, info) => {
-      if (error) {
-        console.log("Error:", error);
-      } else {
-        console.log("Email sent:", info.response);
-      }
-    }
-  );
-
-  if (!user) {
-    throw new ApiError(
-      "Internal Server Error! Server failed creating new user."
+  const result = await AuthService.register( name, email, password, role, phone );
+  if (!result.isSuccess) {
+    const error = result.error;
+    return res.status(error.statusCode).json(
+      ApiResponse(error.message, null, error.statusCode, true)
     );
   }
 
-  res
-    .status(StatusCodes.CREATED)
-    .json(ApiResponse("Đăng ký thành công", user, StatusCodes.CREATED));
-});
+  const {user, otp} = result.value;
+
+  // send OTP via email
+  const emailResult = await EmailService.sendOtpEmail(email, otp);
+  if (!emailResult.isSuccess) {
+    return res.status(StatusCodes.CREATED).json(
+      ApiResponse('Đăng ký thành công nhưng gửi OTP thất bại', user, StatusCodes.CREATED)
+    );
+  }
+
+  res.status(StatusCodes.CREATED).json(
+    ApiResponse('Đăng ký thành công', user, StatusCodes.CREATED)
+  );
+}
 
 const driverRegister = AsyncHandler(async (req, res) => {
   const {
