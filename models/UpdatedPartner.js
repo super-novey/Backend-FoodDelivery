@@ -3,26 +3,26 @@ const { Schema } = mongoose;
 
 
 const TimeSplotSchema = mongoose.Schema(
-    {
-        open: {
-            type: String, 
-            required: true,
-          },
-          close: {
-            type: String, 
-            required: true,
-          },
+  {
+    open: {
+      type: String,
+      required: true,
     },
-    { _id: false }
+    close: {
+      type: String,
+      required: true,
+    },
+  },
+  { _id: false }
 );
 
 const DayScheduleSchema = Schema({
-    day: {
-      type: String, 
-      required: true,
-    },
-    timeSlots: [TimeSplotSchema], 
-  }); 
+  day: {
+    type: String,
+    required: true,
+  },
+  timeSlots: [TimeSplotSchema],
+});
 
 const UpdatedPartnerSchema = Schema(
   {
@@ -73,8 +73,6 @@ const UpdatedPartnerSchema = Schema(
     },
     schedule: [DayScheduleSchema],
   },
-  {
-    timeStamp: true,
-  }
+  { timestamps: true }
 );
 module.exports = mongoose.model("UpdatedPartner", UpdatedPartnerSchema);

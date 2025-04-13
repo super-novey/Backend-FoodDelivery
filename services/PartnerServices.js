@@ -10,8 +10,9 @@ const createPartner = async (
   avatarUrl,
   storeFront,
   CCCDFrontUrl,
-  CCCDBackUrl
-  
+  CCCDBackUrl,
+
+
 ) => {
   return await UpdatedPartner.create({
     userId: userId,
@@ -24,7 +25,8 @@ const createPartner = async (
     avatarUrl: avatarUrl,
     storeFront: storeFront,
     CCCDFrontUrl: CCCDFrontUrl,
-    CCCDBackUrl: CCCDBackUrl
+    CCCDBackUrl: CCCDBackUrl,
+
   });
 };
 
@@ -51,7 +53,7 @@ const getDetailPartnerByPartnerId = async (id) => {
     const objectId = new mongoose.Types.ObjectId(id.trim());
 
     const partner = await UpdatedPartner.findById(objectId)
-      .populate('userId', 'name phone') 
+      .populate('userId', 'name phone')
       .exec();
 
     if (!partner) {
@@ -69,18 +71,18 @@ const getDetailPartnerByPartnerId = async (id) => {
 const updatePartnerStatus = async (partnerId, status) => {
   try {
     const updatedPartner = await UpdatedPartner.findOneAndUpdate(
-      { _id: partnerId }, 
-      { status },  
+      { _id: partnerId },
+      { status },
       { new: true }
     );
     console.log(partnerId);
     if (!updatedPartner) {
       throw new Error("Partner not found.");
     }
-    return updatedPartner; 
+    return updatedPartner;
   } catch (error) {
     console.error("Error updating partner status:", error);
-    throw error; 
+    throw error;
   }
 };
 

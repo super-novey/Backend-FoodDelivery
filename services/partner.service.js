@@ -1,0 +1,5 @@
+class PartnerService {
+    async create() {
+        
+    }
+}
