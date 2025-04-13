@@ -1,0 +1,44 @@
+const { Server } = require("socket.io");
+const registerSocketHandlers = require("./handlers");
+class Socket {
+    constructor() {
+        this.io = null
+    }
+
+    init(server) {
+        if (this.io) {
+            console.log("Socket.io has already been initialize")
+            return this.io
+        }
+
+        this.io = new Server(server, {
+            cors: {
+                origin: "*", // Allow all origins for testing
+                methods: ["GET", "POST"],
+            },
+            transports: ["websocket"],
+        })
+
+        this.io.on("connection", (socket) => {
+            console.log(`Socket connected: ${socket.id}`);
+
+            registerSocketHandlers(socket, this.io);
+
+            socket.on("disconnect", () => {
+                console.log(`Socket disconnected: ${socket.id}`);
+            });
+
+        })
+    }
+
+    static getInstance() {
+        if (!Socket.instance) {
+            Socket.instance = new Socket()
+        }
+        return Socket.instance
+    }
+}
+
+const instanceSocket = Socket.getInstance();
+
+module.exports = instanceSocket
