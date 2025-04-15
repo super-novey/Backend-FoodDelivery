@@ -1,10 +1,10 @@
 const { StatusCodes, ReasonPhrases } = require("../utils/httpStatusCode")
 
 class SuccessResponse {
-    constructor({ message, statusCode = StatusCodes.OK, reasonStatusCode = ReasonPhrases.OK, metaData = {} }) {
+    constructor({ message, statusCode = StatusCodes.OK, reasonStatusCode = ReasonPhrases.OK, data = null }) {
         this.message = !message ? reasonStatusCode : message,
             this.status = statusCode,
-            this.metaData = metaData
+            this.data = data
     }
 
     send(res, header = {}) {
@@ -13,14 +13,14 @@ class SuccessResponse {
 }
 
 class OK extends SuccessResponse {
-    constructor({ message, metaData }) {
-        super({ message, metaData })
+    constructor({ message, data }) {
+        super({ message, data })
     }
 }
 
 class CREATED extends SuccessResponse {
-    constructor({options = {} , message, statusCode = StatusCodes.CREATED, reasonStatusCode = ReasonPhrases.CREATED, metaData }) {
-        super({ message, statusCode, reasonStatusCode, metaData}) 
+    constructor({options = {} , message, statusCode = StatusCodes.CREATED, reasonStatusCode = ReasonPhrases.CREATED, data }) {
+        super({ message, statusCode, reasonStatusCode, data}) 
         this.options = options
     }
 }

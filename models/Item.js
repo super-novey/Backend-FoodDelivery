@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
-const { Schema } = mongoose;
+const slugify = require("slugify")
+const { Schema, Types} = mongoose;
+const {removeVietnameseTones} = require('../utils/string.normalized')
 
 const ItemSchema = Schema({
   categoryId: {
@@ -54,7 +56,29 @@ const ItemSchema = Schema({
     type: String,
   },
 
-  toppingGroupIds : {type: Schema.Types.ObjectId}
-});
+  itemSlug: {type: String},
+
+  toppingGroupIds: {
+    type: [Types.ObjectId],
+    default: [],
+    ref: "ToppingGroup"
+  },
+
+  rating_average: { 
+    type: Number, 
+    min: [1, "Rating must be a bove 1.0"], 
+    max: [5, 'Rating must be below 5 '], 
+    // 4.334566 => 4.3
+    set: (val) => Math.round(val * 10) / 10 }
+})
+
+
+
+// Document middleware: runs before .save(). and .create
+ItemSchema.pre('save', function(next) {
+  this.itemSlug = slugify(this.itemName, {lower: true})
+  this.normalizedItemName = removeVietnameseTones(this.itemName)
+  next()
+})
 
 module.exports = mongoose.model("Item", ItemSchema);

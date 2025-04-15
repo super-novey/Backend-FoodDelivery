@@ -1,6 +1,8 @@
 const Category = require("../models/Category");
 const UpdatedPartner = require("../models/UpdatedPartner");
 const mongoose = require("mongoose");
+const { Types } = require('mongoose')
+
 
 const deleteAllCategoriesOfPartner = async (partnerId) => {
   try {
@@ -71,6 +73,10 @@ const getCategories = async (partnerId) => {
   }
 };
 
+const findById = async (id) => {
+  return await Category.findOne({ _id: new Types.ObjectId(id) }).lean()
+}
 
 
-module.exports = { deleteAllCategoriesOfPartner, getCategories };
+
+module.exports = { deleteAllCategoriesOfPartner, getCategories, findById };

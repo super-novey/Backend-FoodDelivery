@@ -28,6 +28,24 @@ class Socket {
                 console.log(`Socket disconnected: ${socket.id}`);
             });
 
+            socket.on("joinRoom", (roomId) => {
+                if (roomId) {
+                    socket.join(roomId); // Join the specified room
+                    console.log(`Socket ${socket.id} joined room: ${roomId}`);
+
+                    // Optionally send acknowledgment
+                    socket.emit("joinedRoom", {
+                        roomId,
+                        message: "Successfully joined room.",
+                    });
+                } else {
+                    console.warn(`Socket ${socket.id} tried to join room without roomId.`);
+                    socket.emit("error", {
+                        message: "Room ID is required to join a room.",
+                    });
+                }
+            });
+
         })
     }
 

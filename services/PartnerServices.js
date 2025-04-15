@@ -1,5 +1,6 @@
 const UpdatedPartner = require("../models/UpdatedPartner");
 const mongoose = require('mongoose');
+const { Types } = require('mongoose')
 const createPartner = async (
   userId,
   description,
@@ -86,5 +87,9 @@ const updatePartnerStatus = async (partnerId, status) => {
   }
 };
 
+const findById = async (id) => {
+  return await UpdatedPartner.findOne({ _id: new Types.ObjectId(id) }).lean()
+}
 
-module.exports = { createPartner, getPartnerByUserID, getDetailPartnerByPartnerId, updatePartnerStatus };
+
+module.exports = { createPartner, getPartnerByUserID, getDetailPartnerByPartnerId, updatePartnerStatus, findById };

@@ -1,59 +1,28 @@
-const {Schema} = require("mongoose");
+const { Schema, model } = require('mongoose');
 
-const ItemSchema = Schema({
-  categoryId: {
-    type: Schema.Types.ObjectId,
-    ref: "Category",
-  },
-  partnerId: {
-    type: Schema.Types.ObjectId,
-    ref: "UpdatedPartner",
-  },
+const DOCUMENT_NAME = "ToppingGroup"
+const COLLECTION_NAME = 'ToppingGroups'
 
-  itemName: {
-    type: String,
-  },
+const toppingGroupScheme = new Schema({
+   tpGroupName: {type: String, required: true},  // "Size", "Trân châu"
+   tpGroup_toppings: {type: Array,  default: []}
+   /*
+   [
+     {
+      "images": [],
+      "name": "Size M ",
+      "price": 10
+      },
+      {
+      "images": [],
+      "name": "Size L",
+      "price": 20
+      } 
+  ]
+   */
+},
+ {
+    collection: COLLECTION_NAME,
+ })
 
-  price: {
-    type: Number,
-  },
-
-  keySearch: {
-    type: String,
-  },
-
-  quantity: {
-    type: Number,
-  },
-
-  sales: {
-    type: Number,
-    default: 0,
-  },
-
-  description: {
-    type: String,
-  },
-
-  status: {
-    type: Boolean,
-    default: false,
-  },
-
-  itemImage: {
-    type: String,
-  },
-
-  isDeleted: {
-    type: String,
-    default: false,
-  },
-
-  normalizedItemName: {
-    type: String,
-  },
-
-  toppingGroupIds : {type: Schema.Types.ObjectId}
-});
-
-module.exports = mongoose.model("Item", ItemSchema);
+ module.exports = model(DOCUMENT_NAME, toppingGroupScheme);
