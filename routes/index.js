@@ -15,6 +15,8 @@ const ItemRoutes = require("./ItemRoutes");
 const OrderRoutes = require("./OrderRoutes");
 const MapRoutes = require("./MapRoutes");
 const ProductRoute = require("./product")
+const ToppingGroupRoute = require("./topping_group")
+const ToppingRoute = require("./topping")
 const UploadRoute = require("./upload")
 
 // assign prefix - to routes
@@ -28,5 +30,7 @@ router.use("/order", OrderRoutes);
 router.use("/map", MapRoutes);
 router.use("/product", ProductRoute)
 router.use("/upload", UploadRoute)
+router.use("/toppingGroup", ToppingGroupRoute)
+router.use("/topping", ToppingRoute)
 
 module.exports = router;

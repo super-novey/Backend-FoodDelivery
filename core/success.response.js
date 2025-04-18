@@ -19,14 +19,34 @@ class OK extends SuccessResponse {
 }
 
 class CREATED extends SuccessResponse {
-    constructor({options = {} , message, statusCode = StatusCodes.CREATED, reasonStatusCode = ReasonPhrases.CREATED, data }) {
-        super({ message, statusCode, reasonStatusCode, data}) 
+    constructor({ options = {}, message, statusCode = StatusCodes.CREATED, reasonStatusCode = ReasonPhrases.CREATED, data }) {
+        super({ message, statusCode, reasonStatusCode, data })
         this.options = options
     }
 }
 
-module.exports =  {
+class PAGINATED extends SuccessResponse {
+    constructor({
+        message,
+        data = [],
+        statusCode = StatusCodes.OK,
+        reasonStatusCode = ReasonPhrases.OK,
+        totalPages = 1,
+        currentPage = 1,
+        pageSize = 10,
+        totalItems = 0,
+    }) {
+        super({ message, data, statusCode, reasonStatusCode });
+        this.totalPages = totalPages;
+        this.currentPage = currentPage;
+        this.pageSize = pageSize;
+        this.totalItems = totalItems;
+    }
+}
+
+module.exports = {
     OK,
     CREATED,
-    SuccessResponse
+    SuccessResponse,
+    PAGINATED
 }
