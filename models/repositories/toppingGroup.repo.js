@@ -28,16 +28,8 @@ const findAllByShopIdV2 = async ({ filter, limit, page, select }) => {
         {
             $lookup: {
                 from: "Toppings",
-                let: { groupId: "$_id" },
-                pipeline: [
-                    { $match: { $expr: { $eq: ["$tpGroupId", "$$groupId"] } } },
-                    {
-                        $project: {
-                            __v: 0,
-                            tpGroupId: 0
-                        }
-                    }
-                ],
+                localField: "_id",
+                foreignField: "tpGroupId",
                 as: "toppings"
             }
         },

@@ -10,7 +10,7 @@ const asyncHandler = require('../../helpers/asyncHandler')
 router.post('/create', asyncHandler(toppingGroupController.createToppingGroup))
 
 // Danh sách các nhóm topping cho shop
-router.get('/all', toppingGroupController.getAllToppingGroupsForShop)
+router.get('/all', asyncHandler(toppingGroupController.getAllToppingGroupsForShop))
 
 
 router.get('/', asyncHandler(async (req, res, next) => {
