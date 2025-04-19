@@ -21,6 +21,27 @@ class ToppingService {
 
         return await toppingModel.create({ tpName, tpPrice, tpImage, isActive, tpGroupId })
     }
+
+    static createToppingV2 = async ({ tpName, tpPrice, tpImage, isActive = false, tpGroupId }) => {
+        const foundTpGroup = await ToppingGroupService.findById(tpGroupId)
+
+        if (!foundTpGroup) throw new NotFoundError(`Không tìm thấy nhóm Topping ${tpGroupId}`)
+
+        const filter = { tpName, tpGroupId };
+
+        const update = {
+            tpName,
+            tpPrice,
+            tpImage,
+            isActive,
+            tpGroupId
+        }, options = {
+            upsert: true,
+            new: true,
+        };
+
+        return await toppingModel.findOneAndUpdate(filter, update, options);
+    }
 }
 
 module.exports = ToppingService

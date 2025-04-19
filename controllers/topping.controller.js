@@ -5,8 +5,8 @@ class ToppingController {
     createTopping = async (req, res, next) => {
         new SuccessResponse(
             {
-                message: "Thêm Topping thành công!",
-                data: await ToppingService.createTopping(req.body)
+                message: "Lưu Topping thành công!",
+                data: await ToppingService.createToppingV2(req.body)
             }
         ).send(res)
     }
